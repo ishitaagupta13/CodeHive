@@ -1,0 +1,2 @@
+# CodeHive
+Hackathon Hosting Platform
