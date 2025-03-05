@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    <link rel="stylesheet" href="register_style.css">
+</head>
+<body>
+    <div class="container">
+        <h2 class="fade-in">Login to <span>CodeHive</span></h2>
+        <form id="loginForm" class="slide-up">
+            <input type="email" id="login-email" placeholder="Email" required>
+            <input type="password" id="login-password" placeholder="Password" required>
+
+            <select id="login-role">
+                <option value="participant">Participant</option>
+                <option value="judge">Judge</option>
+                <option value="organizer">Organizer</option>
+            </select>
+            <button id="google-login-btn" class="google-btn">
+                <img src="google-icon.png" alt="Google Logo"> Login with Google
+            </button>
+            
+            <button type="submit">Login</button>
+        </form>
+    </div>
+
+    <script src="login_script.js"></script>
+    <script src="firebase-config.js"></script>
+    <script src="auth.js"></script>
+</body>
+</html>

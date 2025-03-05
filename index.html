@@ -3,15 +3,47 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hackathon Platform</title>
-    <link rel="stylesheet" href="style.css">
+    <title>CodeHive Hackathon</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
 </head>
 <body>
-    <header>
-        <h1>Welcome to CodeHive Hackathon</h1>
-    </header>
 
-    <main>
+    <header>
+        <nav>
+            <div class="nav-container">
+                <h1 class="logo">CodeHive Hackathon</h1>
+                <ul class="nav-links">
+                    
+                    <li><a href="register.html">Register</a></li>
+                    <li><a href="login.html">Login</a></li>
+                    <li><a href="#about">About</a></li>
+                    <li><a href="#contact">Contact</a></li>
+                </ul>
+            </div>
+        </nav>
+    </header>
+    <div class="backgroundcover">
+        
+    </div>
+    <section class="hero">
+        <div class="hero-content">
+            <h2>Join the Ultimate Coding Challenge</h2>
+            <p>Compete with the best minds, win amazing prizes, and innovate for a better future!</p>
+            <a href="register.html" class="btn">Register Now</a>
+
+            
+            <a href="login.html" class="btn">Login</a>
+
+        </div>
+    </section>
+    <!-- <select id="role">
+        <option value="participant">Participant</option>
+        <option value="judge">Judge</option>
+        <option value="organizer">Organizer</option>
+    </select>
+    
+    <section id="register" class="register-section">
         <h2>Register for the Hackathon</h2>
         <form id="registerForm">
             <input type="text" id="name" placeholder="Full Name" required>
@@ -19,40 +51,34 @@
             <input type="password" id="password" placeholder="Password" required>
             <button type="submit">Register</button>
         </form>
-
         <p>Already registered? <button onclick="loginUser()">Login</button></p>
-    </main>
+    </section>
 
-    <h2>Login / Signup</h2>
+    <section id="login" class="login-section">
+        <h2>Login / Signup</h2>
+        <div>
+            <input type="email" id="signup-email" placeholder="Enter Email">
+            <input type="password" id="signup-password" placeholder="Enter Password">
+            <button id="signup-btn">Sign Up</button>
+        </div>
+        <div>
+            <input type="email" id="login-email" placeholder="Enter Email">
+            <input type="password" id="login-password" placeholder="Enter Password">
+            <button id="login-btn">Login</button>
+        </div>
+        <button id="google-login-btn">Login with Google</button>
+        <button id="logout-btn">Logout</button>
+    </section> -->
 
-    <!-- Signup Form -->
-    <div>
-        <input type="email" id="signup-email" placeholder="Enter Email">
-        <input type="password" id="signup-password" placeholder="Enter Password">
-        <button id="signup-btn">Sign Up</button>
-    </div>
+    <footer>
+        <p>© 2025 CodeHive Hackathon. All Rights Reserved.</p>
+    </footer>
 
-    <!-- Login Form -->
-    <div>
-        <input type="email" id="login-email" placeholder="Enter Email">
-        <input type="password" id="login-password" placeholder="Enter Password">
-        <button id="login-btn">Login</button>
-    </div>
-
-    <!-- Google Login -->
-    <button id="google-login-btn">Login with Google</button>
-
-    <!-- Logout -->
-    <button id="logout-btn">Logout</button>
-
-    <!-- Firebase SDK (Load these at the bottom of <body>) -->
-<script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js"></script>
-
-<!-- Your scripts -->
-<script src="firebase-config.js"></script>
-<script src="auth.js"></script>
-
+    <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js"></script>
+    <script src="firebase-config.js"></script>
+    <script src="auth.js"></script>
+    <script src="scripts.js"></script>
 </body>
 </html>

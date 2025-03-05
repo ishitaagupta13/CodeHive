@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register</title>
+    <link rel="stylesheet" href="register_style.css">
+</head>
+<body>
+    <div class="container">
+        <h2 class="fade-in">Register for <span>CodeHive</span></h2>
+        <form id="registerForm" class="slide-up">
+            <input type="text" id="name" placeholder="Full Name" required>
+            <input type="email" id="email" placeholder="Email" required>
+            <input type="password" id="password" placeholder="Password" required>
+
+            <select id="role">
+                <option value="participant">Participant</option>
+                <option value="judge">Judge</option>
+                <option value="organizer">Organizer</option>
+            </select>
+            <p>Or register with:</p>
+            <button id="google-login-btn" class="google-btn">
+                <img src="google-icon.png" alt="Google Logo"> Login with Google
+            </button>
+            
+            <button type="submit">Register</button>
+        </form>
+    </div>
+
+    <script src="script.js"></script>
+    <script src="firebase-config.js"></script>
+    <script src="auth.js"></script>
+</body>
+</html>
