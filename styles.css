@@ -17,32 +17,33 @@ header {
     z-index: 1000;
 }
 
+/* Navbar Container */
 .nav-container {
     display: flex;
-    justify-content: space-between;
+    justify-content: space-between; /* Ensures CodeHive is left-most & links are right-most */
     align-items: center;
     max-width: 1200px;
     margin: auto;
     padding: 0 20px;
-    color: rgb(185, 24, 169);
 }
 
-/* CodeHive Logo in Yellow */
+/* CodeHive Logo (Left-most) */
 .logo {
     color: #FFD700; /* Yellow */
     font-size: 22px;
     font-weight: bold;
+    margin-left: 0; /* Ensures it stays at the left */
 }
 
-/* Navbar Links */
+/* Navigation Links (Right-most) */
 .nav-links {
     list-style: none;
     display: flex;
-    margin-left: auto;
+    margin-left: auto; /* Pushes links completely to the right */
 }
 
 .nav-links li {
-    margin-left: 20px;
+    margin-left: 20px; /* Adds spacing between links */
 }
 
 .nav-links a {
@@ -53,7 +54,7 @@ header {
 }
 
 .nav-links a:hover {
-    color: #cc2ed2;
+    color: #122fb2;
 }
 
 /* Background Image */
@@ -101,7 +102,7 @@ header {
 /* Register & Login Buttons in Pinkish Red */
 .btn {
     display: inline-block;
-    background: #cd2424; /* Pinkish Red */
+    background: #25b4ec; /* Pinkish Red */
     color: white;
     padding: 12px 20px;
     font-size: 18px;
