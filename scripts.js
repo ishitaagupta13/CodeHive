@@ -21,3 +21,20 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     });
 });
+document.addEventListener("DOMContentLoaded", function () {
+    const form = document.getElementById("registerForm");
+
+    // Button animation on submit
+    form.addEventListener("submit", function (event) {
+        event.preventDefault();
+
+        let button = form.querySelector("button");
+        button.innerText = "Registering...";
+        button.style.background = "#ffa600";
+
+        setTimeout(() => {
+            button.innerText = "Register";
+            button.style.background = "#ff7b00";
+        }, 2000);
+    });
+});

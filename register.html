@@ -4,11 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Register - CodeHive Hackathon</title>
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="register_style.css">
 </head>
 <body>
     <header>
-        <nav>
+        <nav class="navbar">
             <div class="nav-container">
                 <h1 class="logo">CodeHive Hackathon</h1>
                 <ul class="nav-links">
@@ -51,7 +51,7 @@
             </div>
             
             <button id="google-register-btn" class="google-btn" type="button">
-                <img src="https://upload.wikimedia.org/wikipedia/commons/5/53/Google_%22G%22_Logo.svg" alt="Google logo">
+                <img src="google-icon.png" alt="Google logo">
                 Register with Google
             </button>
             
@@ -63,14 +63,11 @@
         <p>© 2025 CodeHive Hackathon. All Rights Reserved.</p>
     </footer>
 
-    <!-- Firebase Scripts - Using v8.10.1 to match your existing code structure -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
     
-    <!-- Firebase Config - Inline to ensure it loads first -->
     <script>
-        // Firebase Configuration
         const firebaseConfig = {
             apiKey: "AIzaSyAOmgh-bwztV2Ikuca2KqCjeZFQmVEOPjs",
             authDomain: "codehive-bcd90.firebaseapp.com",
@@ -80,18 +77,14 @@
             appId: "1:300677091996:web:c47af18d9e43f3355fd359"
         };
 
-        // Initialize Firebase
         firebase.initializeApp(firebaseConfig);
 
-        // Firebase Services
         const auth = firebase.auth();
         const db = firebase.firestore();
         const googleProvider = new firebase.auth.GoogleAuthProvider();
     </script>
     
-    <!-- Auth Functions -->
     <script>
-        // For email/password registration
         document.getElementById("registerForm").addEventListener("submit", function (e) {
             e.preventDefault();
             const name = document.getElementById("name").value;
@@ -119,25 +112,16 @@
                 });
         });
 
-        // Google Sign In Function
         function signInWithGoogle() {
-            console.log("Google sign-in initiated");
             auth.signInWithPopup(googleProvider)
                 .then((result) => {
                     const user = result.user;
-                    console.log("Google Sign-In Successful:", user);
-                    
-                    // Check if this user already exists in our database
                     return db.collection("users").doc(user.uid).get()
                         .then((doc) => {
                             if (doc.exists) {
-                                // User exists, just redirect to appropriate dashboard
-                                console.log("Existing user, logging in");
                                 return redirectToDashboard(doc.data().role);
                             } else {
-                                // New user, create profile with default role as participant
-                                console.log("New user, creating profile");
-                                const role = "participant"; // Default role
+                                const role = "participant";
                                 return db.collection("users").doc(user.uid).set({
                                     email: user.email,
                                     name: user.displayName,
@@ -156,21 +140,12 @@
                 });
         }
 
-        // Google sign-in button event listener
         document.getElementById("google-register-btn").addEventListener("click", function(e) {
             e.preventDefault();
-            console.log("Google register button clicked");
             signInWithGoogle();
         });
 
-        // Redirect function
         function redirectToDashboard(role) {
-            if (!role) {
-                // Default to participant if role is undefined or null
-                window.location.href = "participant-dashboard.html";
-                return;
-            }
-            
             if (role === "participant") window.location.href = "participant-dashboard.html";
             if (role === "judge") window.location.href = "judge-dashboard.html";
             if (role === "organizer") window.location.href = "organizer-dashboard.html";

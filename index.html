@@ -42,45 +42,12 @@
         <p>© 2025 CodeHive Hackathon. All Rights Reserved.</p>
     </footer>
 
-    <!-- <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js"></script>
     <script src="firebase-config.js"></script>
     <script src="auth.js"></script>
-    <script src="scripts.js"></script> -->
-    <!-- For Firebase version 10.8.1 (modular API), use this: -->
-<script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
-    import { getAuth, signInWithPopup, GoogleAuthProvider, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
-    import { getFirestore, collection, doc, getDoc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
-  
-    const firebaseConfig = {
-      apiKey: "AIzaSyAOmgh-bwztV2Ikuca2KqCjeZFQmVEOPjs",
-      authDomain: "codehive-bcd90.firebaseapp.com",
-      projectId: "codehive-bcd90",
-      storageBucket: "codehive-bcd90.appspot.com",
-      messagingSenderId: "300677091996",
-      appId: "1:300677091996:web:c47af18d9e43f3355fd359"
-    };
-  
-    // Initialize Firebase
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    const db = getFirestore(app);
-    const provider = new GoogleAuthProvider();
-  
-    // Make these available to other scripts
-    window.firebaseApp = app;
-    window.firebaseAuth = auth;
-    window.firebaseDb = db;
-    window.googleProvider = provider;
-    window.signInWithPopup = signInWithPopup;
-  </script>
-  
-  <!-- OR, for the older namespaced version (which matches your existing code): -->
-  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+    <script src="scripts.js"></script>
 
 </body>
 </html>
