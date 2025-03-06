@@ -3,31 +3,161 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login</title>
-    <link rel="stylesheet" href="register_style.css">
+    <title>Login - CodeHive Hackathon</title>
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <div class="container">
-        <h2 class="fade-in">Login to <span>CodeHive</span></h2>
-        <form id="loginForm" class="slide-up">
-            <input type="email" id="login-email" placeholder="Email" required>
-            <input type="password" id="login-password" placeholder="Password" required>
+    <header>
+        <nav>
+            <div class="nav-container">
+                <h1 class="logo">CodeHive Hackathon</h1>
+                <ul class="nav-links">
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="register.html">Register</a></li>
+                </ul>
+            </div>
+        </nav>
+    </header>
 
-            <select id="login-role">
-                <option value="participant">Participant</option>
-                <option value="judge">Judge</option>
-                <option value="organizer">Organizer</option>
-            </select>
-            <button id="google-login-btn" class="google-btn">
-                <img src="google-icon.png" alt="Google Logo"> Login with Google
+    <main>
+        <div class="form-container">
+            <h2>Login</h2>
+            <form id="loginForm">
+                <div class="form-group">
+                    <label for="login-email">Email</label>
+                    <input type="email" id="login-email" name="email" required>
+                </div>
+                <div class="form-group">
+                    <label for="login-password">Password</label>
+                    <input type="password" id="login-password" name="password" required>
+                </div>
+                <button type="submit" class="btn">Login</button>
+            </form>
+            
+            <div class="or-divider">
+                <span>OR</span>
+            </div>
+            
+            <button id="google-login-btn" class="google-btn" type="button">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/5/53/Google_%22G%22_Logo.svg" alt="Google logo">
+                Sign in with Google
             </button>
             
-            <button type="submit">Login</button>
-        </form>
-    </div>
+            <p class="register-link">Don't have an account? <a href="register.html">Register here</a></p>
+        </div>
+    </main>
 
-    <script src="login_script.js"></script>
-    <script src="firebase-config.js"></script>
-    <script src="auth.js"></script>
+    <footer>
+        <p>© 2025 CodeHive Hackathon. All Rights Reserved.</p>
+    </footer>
+
+    <!-- Firebase Scripts - Using v8.10.1 to match your existing code structure -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+    
+    <!-- Firebase Config - Inline to ensure it loads first -->
+    <script>
+        // Firebase Configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyAOmgh-bwztV2Ikuca2KqCjeZFQmVEOPjs",
+            authDomain: "codehive-bcd90.firebaseapp.com",
+            projectId: "codehive-bcd90",
+            storageBucket: "codehive-bcd90.appspot.com",
+            messagingSenderId: "300677091996",
+            appId: "1:300677091996:web:c47af18d9e43f3355fd359"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+
+        // Firebase Services
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+        const googleProvider = new firebase.auth.GoogleAuthProvider();
+    </script>
+    
+    <!-- Auth Functions -->
+    <script>
+        // For email/password login
+        document.getElementById("loginForm").addEventListener("submit", function (e) {
+            e.preventDefault();
+            const email = document.getElementById("login-email").value;
+            const password = document.getElementById("login-password").value;
+
+            auth.signInWithEmailAndPassword(email, password)
+                .then((userCredential) => {
+                    return db.collection("users").doc(userCredential.user.uid).get()
+                        .then(doc => {
+                            if (doc.exists) {
+                                redirectToDashboard(doc.data().role);
+                            } else {
+                                alert("User profile not found. Please contact support.");
+                            }
+                        });
+                })
+                .catch((error) => {
+                    console.error("Login error:", error);
+                    alert(error.message);
+                });
+        });
+
+        // Google Sign In Function
+        function signInWithGoogle() {
+            console.log("Google sign-in initiated");
+            auth.signInWithPopup(googleProvider)
+                .then((result) => {
+                    const user = result.user;
+                    console.log("Google Sign-In Successful:", user);
+                    
+                    // Check if this user already exists in our database
+                    return db.collection("users").doc(user.uid).get()
+                        .then((doc) => {
+                            if (doc.exists) {
+                                // User exists, just redirect to appropriate dashboard
+                                console.log("Existing user, logging in");
+                                return redirectToDashboard(doc.data().role);
+                            } else {
+                                // New user, create profile with default role as participant
+                                console.log("New user, creating profile");
+                                const role = "participant"; // Default role
+                                return db.collection("users").doc(user.uid).set({
+                                    email: user.email,
+                                    name: user.displayName,
+                                    photoURL: user.photoURL,
+                                    role: role,
+                                    registeredAt: firebase.firestore.FieldValue.serverTimestamp()
+                                }).then(() => {
+                                    redirectToDashboard(role);
+                                });
+                            }
+                        });
+                })
+                .catch((error) => {
+                    console.error("Google Sign-In Error:", error);
+                    alert(error.message);
+                });
+        }
+
+        // Google sign-in button event listener
+        document.getElementById("google-login-btn").addEventListener("click", function(e) {
+            e.preventDefault();
+            console.log("Google login button clicked");
+            signInWithGoogle();
+        });
+
+        // Redirect function
+        function redirectToDashboard(role) {
+            if (!role) {
+                // Default to participant if role is undefined or null
+                window.location.href = "participant-dashboard.html";
+                return;
+            }
+            
+            if (role === "participant") window.location.href = "participant-dashboard.html";
+            if (role === "judge") window.location.href = "judge-dashboard.html";
+            if (role === "organizer") window.location.href = "organizer-dashboard.html";
+        }
+    </script>
 </body>
 </html>

@@ -1,4 +1,3 @@
-// Firebase Configuration
 const firebaseConfig = {
     apiKey: "AIzaSyAOmgh-bwztV2Ikuca2KqCjeZFQmVEOPjs",
     authDomain: "codehive-bcd90.firebaseapp.com",
@@ -8,10 +7,10 @@ const firebaseConfig = {
     appId: "1:300677091996:web:c47af18d9e43f3355fd359"
 };
 
-// Initialize Firebase (Global firebase object method)
+// Initialize Firebase (using the correct version of Firebase)
 firebase.initializeApp(firebaseConfig);
 
 // Firebase Services
 const auth = firebase.auth();
-const provider = new firebase.auth.GoogleAuthProvider();
 const db = firebase.firestore();
+const provider = new firebase.auth.GoogleAuthProvider();
