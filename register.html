@@ -84,72 +84,98 @@
         const googleProvider = new firebase.auth.GoogleAuthProvider();
     </script>
     
+
     <script>
-        document.getElementById("registerForm").addEventListener("submit", function (e) {
-            e.preventDefault();
-            const name = document.getElementById("name").value;
-            const email = document.getElementById("email").value;
-            const password = document.getElementById("password").value;
-            const role = document.getElementById("role").value;
+document.getElementById("registerForm").addEventListener("submit", function (e) {
+    e.preventDefault();
+    const name = document.getElementById("name").value;
+    const email = document.getElementById("email").value;
+    const password = document.getElementById("password").value;
+    const role = document.getElementById("role").value;
 
-            auth.createUserWithEmailAndPassword(email, password)
-                .then((userCredential) => {
-                    const user = userCredential.user;
-                    return db.collection("users").doc(user.uid).set({
-                        name: name,
-                        email: email,
-                        role: role,
-                        registeredAt: firebase.firestore.FieldValue.serverTimestamp()
+    auth.createUserWithEmailAndPassword(email, password)
+        .then((userCredential) => {
+            const user = userCredential.user;
+            const userRef = db.collection("users").doc(user.uid);
+
+            return userRef.set({
+                name: name,
+                email: email,
+                role: role,
+                registeredAt: firebase.firestore.FieldValue.serverTimestamp()
+            }).then(() => role); // Return role to be used in next `.then()`
+        })
+        .then((role) => {
+            alert("Signup Successful! 🎉");
+            redirectToDashboard(role); // Ensure correct redirection
+        })
+        .catch((error) => {
+            console.error("Registration error:", error);
+            alert(error.message);
+        });
+});
+
+
+    function signInWithGoogle() {
+        auth.signInWithPopup(googleProvider)
+            .then((result) => {
+                const user = result.user;
+
+                return db.collection("users").doc(user.uid).get()
+                    .then((doc) => {
+                        if (doc.exists) {
+                            return redirectToDashboard(doc.data().role);
+                        } else {
+                            const role = "participant"; // Default role
+
+                            // Create references
+                            const userRef = db.collection("users").doc(user.uid);
+                            const roleCollectionRef = db.collection(role + "s").doc(user.uid);
+
+                            const batch = db.batch();
+
+                            batch.set(userRef, {
+                                email: user.email,
+                                role: role,
+                                registeredAt: firebase.firestore.FieldValue.serverTimestamp()
+                            });
+
+                            batch.set(roleCollectionRef, {
+                                name: user.displayName,
+                                email: user.email,
+                                uid: user.uid,
+                                photoURL: user.photoURL,
+                                registeredAt: firebase.firestore.FieldValue.serverTimestamp()
+                            });
+
+                            return batch.commit().then(() => {
+                                redirectToDashboard(role);
+                            });
+                        }
                     });
-                })
-                .then(() => {
-                    alert("Signup Successful! 🎉");
-                    redirectToDashboard(role);
-                })
-                .catch((error) => {
-                    console.error("Registration error:", error);
-                    alert(error.message);
-                });
-        });
+            })
+            .catch((error) => {
+                console.error("Google Sign-In Error:", error);
+                alert(error.message);
+            })
+    }
 
-        function signInWithGoogle() {
-            auth.signInWithPopup(googleProvider)
-                .then((result) => {
-                    const user = result.user;
-                    return db.collection("users").doc(user.uid).get()
-                        .then((doc) => {
-                            if (doc.exists) {
-                                return redirectToDashboard(doc.data().role);
-                            } else {
-                                const role = "participant";
-                                return db.collection("users").doc(user.uid).set({
-                                    email: user.email,
-                                    name: user.displayName,
-                                    photoURL: user.photoURL,
-                                    role: role,
-                                    registeredAt: firebase.firestore.FieldValue.serverTimestamp()
-                                }).then(() => {
-                                    redirectToDashboard(role);
-                                });
-                            }
-                        });
-                })
-                .catch((error) => {
-                    console.error("Google Sign-In Error:", error);
-                    alert(error.message);
-                });
+    document.getElementById("google-register-btn").addEventListener("click", function (e) {
+         e.preventDefault();
+        signInWithGoogle();
+    });
+
+    function redirectToDashboard(role) {
+        if (role === "organizer") {
+            window.location.href = "../organizer-dashboard.html";
+        } else if (role === "judge") {
+            window.location.href = "../judge-dashboard.html";
+        } else {
+            window.location.href = "../participant-dashboard.html";
         }
+    }
+</script>
 
-        document.getElementById("google-register-btn").addEventListener("click", function(e) {
-            e.preventDefault();
-            signInWithGoogle();
-        });
-
-        function redirectToDashboard(role) {
-            if (role === "participant") window.location.href = "participant-dashboard.html";
-            if (role === "judge") window.location.href = "judge-dashboard.html";
-            if (role === "organizer") window.location.href = "organizer-dashboard.html";
-        }
     </script>
 </body>
 </html>

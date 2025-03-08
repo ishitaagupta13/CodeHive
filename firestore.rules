@@ -2,8 +2,56 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
+    // Base rule - deny access by default
     match /{document=**} {
       allow read, write: if false;
+    }
+    
+    // Users collection
+    match /users/{userId} {
+      // Allow users to read their own profile
+      allow read: if request.auth != null && request.auth.uid == userId;
+      // Only allow creation with proper validation
+      allow create: if request.auth != null && request.auth.uid == userId;
+      // Allow updates with validation
+      allow update: if request.auth != null && request.auth.uid == userId;
+    }
+    
+    // Participants collection
+    match /participants/{userId} {
+      // Users can read/write their own participant profile
+      allow read: if request.auth != null && request.auth.uid == userId;
+      allow write: if request.auth != null && request.auth.uid == userId;
+      
+      // Judges and organizers can read all participant profiles
+      allow read: if hasRole('judge') || hasRole('organizer');
+    }
+    
+    // Judges collection
+    match /judges/{userId} {
+      // Users can read/write their own judge profile
+      allow read: if request.auth != null && request.auth.uid == userId;
+      allow write: if request.auth != null && request.auth.uid == userId;
+      
+      // Organizers can read all judge profiles
+      allow read: if hasRole('organizer');
+    }
+    
+    // Organizers collection
+    match /organizers/{userId} {
+      // Users can read/write their own organizer profile
+      allow read: if request.auth != null && request.auth.uid == userId;
+      allow write: if request.auth != null && request.auth.uid == userId;
+      
+      // Organizers can read other organizer profiles
+      allow read: if hasRole('organizer');
+    }
+    
+    // Helper function to check user role
+    function hasRole(role) {
+      return request.auth != null && 
+        exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == role;
     }
   }
 }

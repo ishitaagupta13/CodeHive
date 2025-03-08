@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Participant Dashboard</title>
+    <link rel="stylesheet" href="dashboard.css">
+    <script src="participant.js" defer></script>
+</head>
+<body>
+    <div class="sidebar">
+        <div class="logo">
+            <h1>CompetitionHub</h1>
+        </div>
+        <nav>
+            <ul>
+                <li class="active"><a href="#"><i class="icon-dashboard"></i> Dashboard</a></li>
+                <li><a href="#"><i class="icon-submissions"></i> My Submissions</a></li>
+                <li><a href="#"><i class="icon-feedback"></i> Feedback</a></li>
+                <li><a href="#"><i class="icon-schedule"></i> Schedule</a></li>
+                <li><a href="#"><i class="icon-rules"></i> Rules</a></li>
+                <li><a href="#"><i class="icon-settings"></i> Settings</a></li>
+            </ul>
+        </nav>
+        <div class="user-info">
+            <div class="avatar"></div>
+            <span>Participant Name</span>
+            <a href="#" class="logout">Log Out</a>
+        </div>
+    </div>
+
+    <main>
+        <header>
+            <div class="search-bar">
+                <input type="text" placeholder="Search...">
+                <button type="submit"><i class="icon-search"></i></button>
+            </div>
+            <div class="notifications">
+                <i class="icon-bell"></i>
+                <span class="badge">3</span>
+            </div>
+        </header>
+
+        <div class="content">
+            <h2>Welcome, Participant!</h2>
+            <div class="status-banner">
+                <p>Your competition status: <span class="status-approved">Approved</span></p>
+                <p>Next submission deadline: <span class="countdown" id="submission-countdown">3 days, 8 hours</span></p>
+            </div>
+
+            <div class="dashboard-cards">
+                <div class="card">
+                    <h3>Submission Status</h3>
+                    <div class="card-content">
+                        <div class="progress-circle" data-progress="65">
+                            <span>65%</span>
+                        </div>
+                        <p>Your latest submission is in progress</p>
+                        <button class="btn primary" id="submit-button">Update Submission</button>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <h3>Recent Feedback</h3>
+                    <div class="card-content">
+                        <div class="feedback-item">
+                            <p class="feedback-date">March 5, 2025</p>
+                            <p class="feedback-text">"Great progress on your project. Consider improving the user interface."</p>
+                            <span class="feedback-rating">4.2/5</span>
+                        </div>
+                        <a href="#" class="view-all">View All Feedback</a>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>Upcoming Events</h3>
+                    <div class="card-content">
+                        <ul class="event-list">
+                            <li>
+                                <div class="event-date">Mar 10</div>
+                                <div class="event-details">
+                                    <h4>Workshop: Advanced Techniques</h4>
+                                    <p>10:00 AM - 12:00 PM</p>
+                                </div>
+                            </li>
+                            <li>
+                                <div class="event-date">Mar 15</div>
+                                <div class="event-details">
+                                    <h4>Q&A Session with Judges</h4>
+                                    <p>2:00 PM - 3:30 PM</p>
+                                </div>
+                            </li>
+                        </ul>
+                        <button class="btn secondary" id="calendar-button">Add to Calendar</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="resources-section">
+                <h3>Competition Resources</h3>
+                <div class="resources-grid">
+                    <a href="#" class="resource-item">
+                        <i class="icon-document"></i>
+                        <span>Competition Guidelines</span>
+                    </a>
+                    <a href="#" class="resource-item">
+                        <i class="icon-video"></i>
+                        <span>Tutorial Videos</span>
+                    </a>
+                    <a href="#" class="resource-item">
+                        <i class="icon-forum"></i>
+                        <span>Discussion Forum</span>
+                    </a>
+                    <a href="#" class="resource-item">
+                        <i class="icon-faq"></i>
+                        <span>FAQ</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <div class="notifications-panel" id="notifications-panel">
+        <h3>Notifications</h3>
+        <div class="notification-list">
+            <div class="notification unread">
+                <p>Your submission has been received.</p>
+                <span class="notification-time">1 hour ago</span>
+            </div>
+            <div class="notification unread">
+                <p>New feedback available from Judge #2.</p>
+                <span class="notification-time">3 hours ago</span>
+            </div>
+            <div class="notification unread">
+                <p>Reminder: Workshop tomorrow at 10:00 AM.</p>
+                <span class="notification-time">Yesterday</span>
+            </div>
+            <div class="notification">
+                <p>Schedule updated for next week.</p>
+                <span class="notification-time">2 days ago</span>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

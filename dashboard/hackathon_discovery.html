@@ -1,0 +1,299 @@
+<!-- HTML Structure for Skills Input and Hackathon Recommendations -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hackathon Discovery Engine</title>
+    <link rel="stylesheet" href="hackathon_discovery_styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Hackathon Discovery Engine</h1>
+            <p>Find the perfect hackathon for your skills</p>
+        </header>
+
+        <section class="skills-section">
+            <h2>Enter Your Skills</h2>
+            <div class="skills-input">
+                <input type="text" id="skill-input" placeholder="Enter a skill (e.g. JavaScript, ML, UI Design)">
+                <button id="add-skill-btn">Add Skill</button>
+            </div>
+            <div class="skills-tags" id="skills-tags-container">
+                <!-- Skills tags will be added here -->
+            </div>
+            <button id="find-hackathons-btn" class="primary-btn">Find Hackathons</button>
+        </section>
+
+        <section class="recommendations-section" id="recommendations-container">
+            <h2>Recommended Hackathons</h2>
+            <div class="hackathon-cards" id="hackathon-results">
+                <!-- Hackathon cards will be displayed here -->
+            </div>
+        </section>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
+    
+   
+    <script>
+    // Firebase configuration - replace with your Firebase project details
+const firebaseConfig = {
+    apiKey: "AIzaSyAOmgh-bwztV2Ikuca2KqCjeZFQmVEOPjs",
+            authDomain: "codehive-bcd90.firebaseapp.com",
+            projectId: "codehive-bcd90",
+            storageBucket: "codehive-bcd90.appspot.com",
+            messagingSenderId: "300677091996",
+            appId: "1:300677091996:web:c47af18d9e43f3355fd359"
+};
+
+// Initialize Firebase
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+
+// DOM elements
+const skillInput = document.getElementById('skill-input');
+const addSkillBtn = document.getElementById('add-skill-btn');
+const skillsTagsContainer = document.getElementById('skills-tags-container');
+const findHackathonsBtn = document.getElementById('find-hackathons-btn');
+const hackathonResults = document.getElementById('hackathon-results');
+
+// Store user skills
+let userSkills = [];
+
+// Add skill to UI and array
+addSkillBtn.addEventListener('click', addSkill);
+skillInput.addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') {
+        addSkill();
+    }
+});
+
+function addSkill() {
+    const skill = skillInput.value.trim();
+    if (skill && !userSkills.includes(skill.toLowerCase())) {
+        userSkills.push(skill.toLowerCase());
+        
+        // Create skill tag element
+        const skillTag = document.createElement('div');
+        skillTag.className = 'skill-tag';
+        skillTag.innerHTML = `
+            ${skill}
+            <span onclick="removeSkill('${skill.toLowerCase()}')">&times;</span>
+        `;
+        
+        skillsTagsContainer.appendChild(skillTag);
+        skillInput.value = '';
+    }
+}
+
+// Remove skill from UI and array
+function removeSkill(skill) {
+    userSkills = userSkills.filter(s => s !== skill);
+    renderSkillTags();
+}
+
+// Re-render all skill tags
+function renderSkillTags() {
+    skillsTagsContainer.innerHTML = '';
+    userSkills.forEach(skill => {
+        const skillTag = document.createElement('div');
+        skillTag.className = 'skill-tag';
+        skillTag.innerHTML = `
+            ${skill}
+            <span onclick="removeSkill('${skill}')">&times;</span>
+        `;
+        
+        skillsTagsContainer.appendChild(skillTag);
+    });
+}
+
+// Find matching hackathons based on skills
+findHackathonsBtn.addEventListener('click', findMatchingHackathons);
+
+async function findMatchingHackathons() {
+    if (userSkills.length === 0) {
+        alert('Please add at least one skill');
+        return;
+    }
+    
+    // Show loading indicator
+    hackathonResults.innerHTML = `
+        <div class="loading">
+            <div class="loading-spinner"></div>
+            <p>Finding the perfect hackathons for you...</p>
+        </div>
+    `;
+    
+    try {
+        // Option 1: Use Firebase to get hackathons
+        const hackathonsSnapshot = await db.collection('hackathons').get();
+        const hackathons = [];
+        
+        hackathonsSnapshot.forEach(doc => {
+            hackathons.push({
+                id: doc.id,
+                ...doc.data()
+            });
+        });
+        
+        // Option 2: Use an external API
+        // Uncomment the below code to use an external API instead
+        /*
+        const response = await fetch('https://api.example.com/hackathons');
+        const hackathons = await response.json();
+        */
+        
+        // If no hackathons are found or you want to use sample data for testing
+        if (hackathons.length === 0) {
+            // Sample hackathon data for testing
+            const sampleHackathons = [
+                {
+                    id: 1,
+                    title: "AI Innovation Hackathon",
+                    description: "Develop innovative AI solutions for real-world problems",
+                    image: "https://via.placeholder.com/300x150?text=AI+Hackathon",
+                    skills: ["python", "machine learning", "ai", "data science", "tensorflow"],
+                    date: "April 15-17, 2025",
+                    location: "Online",
+                    url: "#"
+                },
+                {
+                    id: 2,
+                    title: "Web3 Developer Challenge",
+                    description: "Build decentralized applications on blockchain technology",
+                    image: "https://via.placeholder.com/300x150?text=Web3+Hackathon",
+                    skills: ["blockchain", "solidity", "javascript", "web3", "ethereum"],
+                    date: "May 5-7, 2025",
+                    location: "San Francisco, CA",
+                    url: "#"
+                },
+                {
+                    id: 3,
+                    title: "Mobile App Showcase",
+                    description: "Create innovative mobile apps with focus on user experience",
+                    image: "https://via.placeholder.com/300x150?text=Mobile+Hackathon",
+                    skills: ["react native", "flutter", "swift", "kotlin", "ui design"],
+                    date: "June 10-12, 2025",
+                    location: "New York, NY",
+                    url: "#"
+                },
+                {
+                    id: 4,
+                    title: "Cloud Computing Challenge",
+                    description: "Leverage cloud services to build scalable applications",
+                    image: "https://via.placeholder.com/300x150?text=Cloud+Hackathon",
+                    skills: ["aws", "azure", "gcp", "serverless", "devops"],
+                    date: "July 20-22, 2025",
+                    location: "Online",
+                    url: "#"
+                },
+                {
+                    id: 5,
+                    title: "Sustainability Tech Hackathon",
+                    description: "Develop tech solutions for environmental challenges",
+                    image: "https://via.placeholder.com/300x150?text=Sustainability+Hackathon",
+                    skills: ["iot", "data visualization", "hardware", "embedded systems", "javascript"],
+                    date: "August 15-17, 2025",
+                    location: "Berlin, Germany",
+                    url: "#"
+                }
+            ];
+            
+            displayHackathonRecommendations(sampleHackathons);
+        } else {
+            displayHackathonRecommendations(hackathons);
+        }
+    } catch (error) {
+        console.error("Error fetching hackathons:", error);
+        hackathonResults.innerHTML = `
+            <div class="error">
+                <p>Failed to load hackathons. Please try again later.</p>
+            </div>
+        `;
+    }
+}
+
+// Calculate match score between user skills and hackathon skills
+function calculateMatchScore(hackathonSkills) {
+    const matchingSkills = userSkills.filter(skill => 
+        hackathonSkills.some(hackathonSkill => 
+            hackathonSkill.toLowerCase().includes(skill) || 
+            skill.includes(hackathonSkill.toLowerCase())
+        )
+    );
+    
+    return {
+        score: matchingSkills.length,
+        percentage: Math.round((matchingSkills.length / userSkills.length) * 100)
+    };
+}
+
+// Display hackathon recommendations sorted by match score
+function displayHackathonRecommendations(hackathons) {
+    // Calculate match scores for each hackathon
+    const scoredHackathons = hackathons.map(hackathon => {
+        const match = calculateMatchScore(hackathon.skills || []);
+        return {
+            ...hackathon,
+            matchScore: match.score,
+            matchPercentage: match.percentage
+        };
+    });
+    
+    // Sort hackathons by match score (highest first)
+    scoredHackathons.sort((a, b) => b.matchScore - a.matchScore);
+    
+    // Display hackathons
+    if (scoredHackathons.length === 0) {
+        hackathonResults.innerHTML = `
+            <div class="no-results">
+                <p>No hackathons found. Try adding different skills.</p>
+            </div>
+        `;
+        return;
+    }
+    
+    hackathonResults.innerHTML = '';
+    
+    scoredHackathons.forEach(hackathon => {
+        // Only show hackathons with at least one matching skill
+        if (hackathon.matchScore > 0) {
+            const hackathonCard = document.createElement('div');
+            hackathonCard.className = 'hackathon-card';
+            hackathonCard.innerHTML = `
+                <img src="${hackathon.image || 'https://via.placeholder.com/300x150?text=Hackathon'}" alt="${hackathon.title}" class="hackathon-card-img">
+                <div class="hackathon-card-content">
+                    <h3>${hackathon.title}</h3>
+                    <p>${hackathon.date || 'TBA'} | ${hackathon.location || 'Location TBA'}</p>
+                    <p>${hackathon.description}</p>
+                    <div class="hackathon-card-skills">
+                        ${(hackathon.skills || []).map(skill => `
+                            <span class="hackathon-card-skill">${skill}</span>
+                        `).join('')}
+                    </div>
+                    <p class="match-score">Match: ${hackathon.matchPercentage}%</p>
+                    <a href="${hackathon.url || '#'}" class="apply-btn" target="_blank">Apply Now</a>
+                </div>
+            `;
+            
+            hackathonResults.appendChild(hackathonCard);
+        }
+    });
+    
+    // If no hackathons match after filtering
+    if (hackathonResults.children.length === 0) {
+        hackathonResults.innerHTML = `
+            <div class="no-results">
+                <p>No matching hackathons found. Try adding different skills.</p>
+            </div>
+        `;
+    }
+}
+</script>
+</body>
+</html>

@@ -80,64 +80,153 @@
     <!-- Auth Functions -->
     <script>
         // For email/password login
+        // document.getElementById("loginForm").addEventListener("submit", function (e) {
+        //     e.preventDefault();
+        //     const email = document.getElementById("login-email").value;
+        //     const password = document.getElementById("login-password").value;
+
+        //     auth.signInWithEmailAndPassword(email, password)
+        //         .then((userCredential) => {
+        //             return db.collection("users").doc(userCredential.user.uid).get()
+        //                 .then(doc => {
+        //                     if (doc.exists) {
+        //                         redirectToDashboard(doc.data().role);
+        //                     } else {
+        //                         alert("User profile not found. Please contact support.");
+        //                     }
+        //                 });
+        //         })
+        //         .catch((error) => {
+        //             console.error("Login error:", error);
+        //             alert(error.message);
+        //         });
+        // });
         document.getElementById("loginForm").addEventListener("submit", function (e) {
-            e.preventDefault();
-            const email = document.getElementById("login-email").value;
-            const password = document.getElementById("login-password").value;
-
-            auth.signInWithEmailAndPassword(email, password)
-                .then((userCredential) => {
-                    return db.collection("users").doc(userCredential.user.uid).get()
-                        .then(doc => {
-                            if (doc.exists) {
-                                redirectToDashboard(doc.data().role);
-                            } else {
-                                alert("User profile not found. Please contact support.");
-                            }
-                        });
-                })
-                .catch((error) => {
-                    console.error("Login error:", error);
-                    alert(error.message);
+    e.preventDefault();
+    const email = document.getElementById("login-email").value;
+    const password = document.getElementById("login-password").value;
+    
+    auth.signInWithEmailAndPassword(email, password)
+        .then((userCredential) => {
+            // Get user role from the users collection
+            return db.collection("users").doc(userCredential.user.uid).get()
+                .then(doc => {
+                    if (doc.exists) {
+                        const userData = doc.data();
+                        const userRole = userData.role;
+                        
+                        // Redirect based on user role with correct relative paths
+                        switch(userRole) {
+                            case "organizer":
+                                window.location.href = "../organizer-dashboard.html";
+                                break;
+                            case "judge":
+                                window.location.href = "../judge-dashboard.html";
+                                break;
+                            case "participant":
+                                window.location.href = "../participant-dashboard.html";
+                                break;
+                            default:
+                                // Default dashboard if role isn't recognized
+                                window.location.href = "dashboard.html";
+                                break;
+                        }
+                    } else {
+                        alert("User profile not found. Please contact support.");
+                    }
                 });
+        })
+        .catch((error) => {
+            console.error("Login error:", error);
+            alert(error.message);
         });
-
+});
         // Google Sign In Function
-        function signInWithGoogle() {
-            console.log("Google sign-in initiated");
-            auth.signInWithPopup(googleProvider)
-                .then((result) => {
-                    const user = result.user;
-                    console.log("Google Sign-In Successful:", user);
+        // function signInWithGoogle() {
+        //     console.log("Google sign-in initiated");
+        //     auth.signInWithPopup(googleProvider)
+        //         .then((result) => {
+        //             const user = result.user;
+        //             console.log("Google Sign-In Successful:", user);
                     
-                    // Check if this user already exists in our database
-                    return db.collection("users").doc(user.uid).get()
-                        .then((doc) => {
-                            if (doc.exists) {
-                                // User exists, just redirect to appropriate dashboard
-                                console.log("Existing user, logging in");
-                                return redirectToDashboard(doc.data().role);
-                            } else {
-                                // New user, create profile with default role as participant
-                                console.log("New user, creating profile");
-                                const role = "participant"; // Default role
-                                return db.collection("users").doc(user.uid).set({
-                                    email: user.email,
-                                    name: user.displayName,
-                                    photoURL: user.photoURL,
-                                    role: role,
-                                    registeredAt: firebase.firestore.FieldValue.serverTimestamp()
-                                }).then(() => {
-                                    redirectToDashboard(role);
-                                });
-                            }
+        //             // Check if this user already exists in our database
+        //             return db.collection("users").doc(user.uid).get()
+        //                 .then((doc) => {
+        //                     if (doc.exists) {
+        //                         // User exists, just redirect to appropriate dashboard
+        //                         console.log("Existing user, logging in");
+        //                         return redirectToDashboard(doc.data().role);
+        //                     } else {
+        //                         // New user, create profile with default role as participant
+        //                         console.log("New user, creating profile");
+        //                         const role = "participant"; // Default role
+        //                         return db.collection("users").doc(user.uid).set({
+        //                             email: user.email,
+        //                             name: user.displayName,
+        //                             photoURL: user.photoURL,
+        //                             role: role,
+        //                             registeredAt: firebase.firestore.FieldValue.serverTimestamp()
+        //                         }).then(() => {
+        //                             redirectToDashboard(role);
+        //                         });
+        //                     }
+        //                 });
+        //         })
+        //         .catch((error) => {
+        //             console.error("Google Sign-In Error:", error);
+        //             alert(error.message);
+        //         });
+        // }
+        function signInWithGoogle() {
+    auth.signInWithPopup(googleProvider)
+        .then((result) => {
+            const user = result.user;
+            
+            // Check if this user already exists in our database
+            return db.collection("users").doc(user.uid).get()
+                .then((doc) => {
+                    if (doc.exists) {
+                        // Existing user, just redirect to appropriate dashboard
+                        return redirectToDashboard(doc.data().role);
+                    } else {
+                        // New user, create profile with default role as participant
+                        const role = "participant"; // Default role for Google sign-in
+                        
+                        // Create references for batch operation
+                        const userRef = db.collection("users").doc(user.uid);
+                        const roleCollectionRef = db.collection(role + "s").doc(user.uid);
+                        
+                        // Run batch write to update both collections
+                        const batch = db.batch();
+                        
+                        // Add to users collection (minimal data)
+                        batch.set(userRef, {
+                            email: user.email,
+                            role: role,
+                            registeredAt: firebase.firestore.FieldValue.serverTimestamp()
                         });
-                })
-                .catch((error) => {
-                    console.error("Google Sign-In Error:", error);
-                    alert(error.message);
+                        
+                        // Add to role-specific collection (complete data)
+                        batch.set(roleCollectionRef, {
+                            name: user.displayName,
+                            email: user.email,
+                            uid: user.uid,
+                            photoURL: user.photoURL,
+                            registeredAt: firebase.firestore.FieldValue.serverTimestamp(),
+                            // Add role-specific fields here
+                        });
+                        
+                        return batch.commit().then(() => {
+                            redirectToDashboard(role);
+                        });
+                    }
                 });
-        }
+        })
+        .catch((error) => {
+            console.error("Google Sign-In Error:", error);
+            alert(error.message);
+        });
+}
 
         // Google sign-in button event listener
         document.getElementById("google-login-btn").addEventListener("click", function(e) {
