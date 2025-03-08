@@ -3,8 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Judge Dashboard</title>
+    <title>Judge Dashboard | CompetitionHub</title>
     <link rel="stylesheet" href="dashboard.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <script src="judge.js" defer></script>
 </head>
 <body>
@@ -14,16 +15,16 @@
         </div>
         <nav>
             <ul>
-                <li class="active"><a href="#"><i class="icon-dashboard"></i> Dashboard</a></li>
-                <li><a href="#"><i class="icon-submissions"></i> Submissions</a></li>
-                <li><a href="#"><i class="icon-evaluation"></i> Evaluation</a></li>
-                <li><a href="#"><i class="icon-schedule"></i> Schedule</a></li>
-                <li><a href="#"><i class="icon-criteria"></i> Criteria</a></li>
-                <li><a href="#"><i class="icon-settings"></i> Settings</a></li>
+                <li class="active"><a href="#"><i class="fas fa-chart-line"></i> Dashboard</a></li>
+                <li><a href="#"><i class="fas fa-file-alt"></i> Submissions</a></li>
+                <li><a href="#"><i class="fas fa-star"></i> Evaluation</a></li>
+                <li><a href="#"><i class="fas fa-calendar-alt"></i> Schedule</a></li>
+                <li><a href="#"><i class="fas fa-clipboard-list"></i> Criteria</a></li>
+                <li><a href="#"><i class="fas fa-cog"></i> Settings</a></li>
             </ul>
         </nav>
         <div class="user-info">
-            <div class="avatar"></div>
+            <div class="avatar">JD</div>
             <span>Judge Name</span>
             <a href="#" class="logout">Log Out</a>
         </div>
@@ -33,10 +34,10 @@
         <header>
             <div class="search-bar">
                 <input type="text" placeholder="Search submissions...">
-                <button type="submit"><i class="icon-search"></i></button>
+                <button type="submit"><i class="fas fa-search"></i></button>
             </div>
             <div class="notifications">
-                <i class="icon-bell"></i>
+                <i class="fas fa-bell"></i>
                 <span class="badge">2</span>
             </div>
         </header>
@@ -44,13 +45,13 @@
         <div class="content">
             <h2>Welcome, Judge!</h2>
             <div class="status-banner">
-                <p>Judging phase begins: <span class="countdown" id="judging-countdown">14 days</span></p>
-                <p>Assigned submissions: <span class="count">28</span></p>
+                <p><i class="fas fa-hourglass-half"></i> Judging phase begins: <span class="countdown" id="judging-countdown">14 days</span></p>
+                <p><i class="fas fa-tasks"></i> Assigned submissions: <span class="count">28</span></p>
             </div>
 
             <div class="dashboard-cards">
                 <div class="card">
-                    <h3>Evaluation Progress</h3>
+                    <h3><i class="fas fa-chart-pie"></i> Evaluation Progress</h3>
                     <div class="card-content">
                         <div class="progress-container">
                             <div class="progress-stat">
@@ -74,7 +75,7 @@
                 </div>
                 
                 <div class="card">
-                    <h3>Recently Submitted Projects</h3>
+                    <h3><i class="fas fa-file-upload"></i> Recently Submitted Projects</h3>
                     <div class="card-content">
                         <div class="project-list">
                             <div class="project-item">
@@ -107,7 +108,7 @@
                 </div>
 
                 <div class="card">
-                    <h3>Judging Schedule</h3>
+                    <h3><i class="fas fa-calendar-week"></i> Judging Schedule</h3>
                     <div class="card-content">
                         <ul class="event-list">
                             <li>
@@ -132,13 +133,13 @@
                                 </div>
                             </li>
                         </ul>
-                        <button class="btn secondary" id="calendar-button">Add to Calendar</button>
+                        <button class="btn secondary" id="calendar-button"><i class="fas fa-calendar-plus"></i> Add to Calendar</button>
                     </div>
                 </div>
             </div>
 
             <div class="criteria-section">
-                <h3>Evaluation Criteria</h3>
+                <h3><i class="fas fa-balance-scale"></i> Evaluation Criteria</h3>
                 <div class="criteria-grid">
                     <div class="criteria-item">
                         <h4>Innovation</h4>
@@ -161,11 +162,11 @@
                         <span class="weight">20%</span>
                     </div>
                 </div>
-                <a href="#" class="criteria-details">View Detailed Criteria</a>
+                <a href="#" class="criteria-details"><i class="fas fa-info-circle"></i> View Detailed Criteria</a>
             </div>
 
             <div class="evaluation-panel" id="evaluation-preview">
-                <h3>Evaluation Form Preview</h3>
+                <h3><i class="fas fa-clipboard-check"></i> Evaluation Form Preview</h3>
                 <div class="form-preview">
                     <div class="form-section">
                         <h4>Innovation Score (1-10)</h4>
@@ -213,11 +214,290 @@
                     </ul>
                 </div>
                 <div class="preview-actions">
-                    <button class="btn primary" id="view-full">View Full Submission</button>
-                    <button class="btn secondary" id="save-notes">Save Notes</button>
+                    <button class="btn primary" id="view-full"><i class="fas fa-eye"></i> View Full Submission</button>
+                    <button class="btn secondary" id="save-notes"><i class="fas fa-save"></i> Save Notes</button>
                 </div>
             </div>
         </div>
     </div>
+
+    <!-- Toast container will be added by JavaScript -->
+    <div class="toast-container"></div>
+
+    <script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Initialize UI elements
+    initializeCountdown();
+    initializePreviewPanel();
+    initializeMobileMenu();
+    
+    // Add initial UI enhancements
+    addAvatarInitials();
+    
+    // Simulate progress update (for demo purposes)
+    simulateProgressUpdate();
+});
+
+// Initialize countdown timer
+function initializeCountdown() {
+    const countdownEl = document.getElementById('judging-countdown');
+    if (!countdownEl) return;
+    
+    // Calculate days difference (in a real app, this would use actual dates)
+    let daysRemaining = 14;
+    
+    // Update the countdown
+    function updateCountdown() {
+        if (daysRemaining > 0) {
+            countdownEl.textContent = daysRemaining + (daysRemaining === 1 ? ' day' : ' days');
+            countdownEl.classList.remove('urgent');
+            
+            if (daysRemaining <= 3) {
+                countdownEl.classList.add('urgent');
+            }
+            
+            daysRemaining--;
+            setTimeout(updateCountdown, 24 * 60 * 60 * 1000); // Update every 24 hours
+        } else {
+            countdownEl.textContent = 'Started!';
+            countdownEl.classList.add('active');
+        }
+    }
+    
+    // For demo purposes, update faster
+    if (countdownEl.classList.contains('demo-mode')) {
+        daysRemaining = 5;
+        setTimeout(updateCountdown, 3000);
+    } else {
+        updateCountdown();
+    }
+}
+
+// Initialize preview panel functionality
+function initializePreviewPanel() {
+    const previewPanel = document.getElementById('preview-panel');
+    const previewButtons = document.querySelectorAll('.btn-preview');
+    const closeButton = document.querySelector('.close-panel');
+    
+    if (!previewPanel || !previewButtons.length || !closeButton) return;
+    
+    // Open preview panel when clicking preview buttons
+    previewButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            previewPanel.classList.add('active');
+            // Get project info from the clicked item
+            const projectItem = this.closest('.project-item');
+            if (projectItem) {
+                const projectName = projectItem.querySelector('h4').textContent;
+                const teamName = projectItem.querySelector('p').textContent.replace('Submitted by: ', '');
+                const submissionDate = projectItem.querySelector('.submission-date').textContent;
+                
+                // Update preview panel with project info
+                document.querySelector('.preview-header h4').textContent = projectName;
+                document.querySelector('.preview-header .team').textContent = teamName;
+                document.querySelector('.preview-details li:nth-child(3) strong').nextSibling.textContent = submissionDate;
+            }
+        });
+    });
+    
+    // Close preview panel
+    closeButton.addEventListener('click', function() {
+        previewPanel.classList.remove('active');
+    });
+    
+    // Close panel when clicking outside
+    document.addEventListener('click', function(event) {
+        if (previewPanel.classList.contains('active') && 
+            !previewPanel.contains(event.target) && 
+            !Array.from(previewButtons).some(btn => btn.contains(event.target))) {
+            previewPanel.classList.remove('active');
+        }
+    });
+}
+
+// Add mobile menu toggle functionality
+function initializeMobileMenu() {
+    // Create mobile menu toggle button if it doesn't exist
+    if (!document.querySelector('.menu-toggle')) {
+        const header = document.querySelector('header');
+        if (header) {
+            const menuToggle = document.createElement('button');
+            menuToggle.className = 'menu-toggle';
+            menuToggle.innerHTML = '<i class="icon-menu"></i>';
+            header.insertBefore(menuToggle, header.firstChild);
+            
+            // Add event listener
+            menuToggle.addEventListener('click', function() {
+                const sidebar = document.querySelector('.sidebar');
+                sidebar.classList.toggle('active');
+            });
+        }
+    }
+}
+
+// Add user initials to avatar
+function addAvatarInitials() {
+    const avatar = document.querySelector('.avatar');
+    const userNameSpan = document.querySelector('.user-info span');
+    
+    if (avatar && userNameSpan) {
+        const userName = userNameSpan.textContent;
+        if (userName) {
+            // Get initials from user name
+            const initials = userName
+                .split(' ')
+                .map(name => name.charAt(0))
+                .join('')
+                .toUpperCase();
+            
+            // Set initials to avatar
+            avatar.textContent = initials.substring(0, 2);
+        }
+    }
+}
+
+// Simulate progress update for demo purposes
+function simulateProgressUpdate() {
+    // Get elements
+    const progressBar = document.querySelector('.progress');
+    const progressNumber = document.querySelector('.progress-stat:nth-child(2) .progress-number');
+    const remainingNumber = document.querySelector('.progress-stat:nth-child(3) .progress-number');
+    const progressText = document.querySelector('.progress-text');
+    
+    if (!progressBar || !progressNumber || !remainingNumber || !progressText) return;
+    
+    // Demo progress simulation
+    let currentProgress = 0;
+    const totalAssigned = parseInt(document.querySelector('.progress-stat:nth-child(1) .progress-number').textContent);
+    
+    // Update progress UI
+    function updateProgress() {
+        // Update numbers
+        progressNumber.textContent = currentProgress;
+        remainingNumber.textContent = totalAssigned - currentProgress;
+        
+        // Update progress bar
+        const percentComplete = Math.round((currentProgress / totalAssigned) * 100);
+        progressBar.style.width = percentComplete + '%';
+        progressText.textContent = percentComplete + '% Complete';
+        
+        // Add special class for completed state
+        if (percentComplete === 100) {
+            progressBar.classList.add('completed');
+            progressText.classList.add('completed');
+        }
+    }
+    
+    // Simulate random progress over time (for demo purposes)
+    function simulateRandomProgress() {
+        if (currentProgress < totalAssigned) {
+            // Random increment between 1-3
+            const increment = Math.floor(Math.random() * 3) + 1;
+            currentProgress = Math.min(currentProgress + increment, totalAssigned);
+            updateProgress();
+            
+            // Continue simulation with random delay
+            const delay = Math.floor(Math.random() * 5000) + 3000;
+            setTimeout(simulateRandomProgress, delay);
+        }
+    }
+    
+    // Add click event to progress bar for demo purposes
+    progressBar.parentElement.addEventListener('click', function() {
+        if (currentProgress < totalAssigned) {
+            currentProgress++;
+            updateProgress();
+        }
+    });
+    
+    // Start simulation after delay
+    setTimeout(simulateRandomProgress, 5000);
+}
+
+// Calendar integration
+document.getElementById('calendar-button')?.addEventListener('click', function() {
+    alert('Calendar integration would add these events to your calendar');
+});
+
+// View full submission button
+document.getElementById('view-full')?.addEventListener('click', function() {
+    alert('This would open the full submission details page');
+});
+
+// Save notes button
+document.getElementById('save-notes')?.addEventListener('click', function() {
+    alert('Your notes have been saved successfully');
+});
+
+// Add animation to criteria items
+document.addEventListener('DOMContentLoaded', function() {
+    const criteriaItems = document.querySelectorAll('.criteria-item');
+    
+    criteriaItems.forEach((item, index) => {
+        // Add delay based on index for staggered animation
+        item.style.animationDelay = (index * 0.1) + 's';
+        item.classList.add('animate-in');
+    });
+});
+
+// Add hover effect to navigation items
+document.querySelectorAll('nav ul li a').forEach(link => {
+    link.addEventListener('mouseenter', function() {
+        this.querySelector('i')?.classList.add('pulse');
+    });
+    
+    link.addEventListener('mouseleave', function() {
+        this.querySelector('i')?.classList.remove('pulse');
+    });
+});
+
+// Add toast notification system
+function showToast(message, type = 'info') {
+    // Create toast container if it doesn't exist
+    if (!document.querySelector('.toast-container')) {
+        const toastContainer = document.createElement('div');
+        toastContainer.className = 'toast-container';
+        document.body.appendChild(toastContainer);
+    }
+    
+    // Create toast element
+    const toast = document.createElement('div');
+    toast.className = `toast toast-${type}`;
+    toast.innerHTML = `
+        <div class="toast-icon"><i class="icon-${type}"></i></div>
+        <div class="toast-message">${message}</div>
+        <button class="toast-close">&times;</button>
+    `;
+    
+    // Add toast to container
+    document.querySelector('.toast-container').appendChild(toast);
+    
+    // Show toast
+    setTimeout(() => {
+        toast.classList.add('show');
+    }, 10);
+    
+    // Auto-hide toast after delay
+    setTimeout(() => {
+        toast.classList.remove('show');
+        setTimeout(() => {
+            toast.remove();
+        }, 300);
+    }, 5000);
+    
+    // Close button functionality
+    toast.querySelector('.toast-close').addEventListener('click', function() {
+        toast.classList.remove('show');
+        setTimeout(() => {
+            toast.remove();
+        }, 300);
+    });
+}
+
+// Show welcome toast on page load
+setTimeout(() => {
+    showToast('Welcome to the Judge Dashboard! Judging begins in 14 days.', 'info');
+}, 1000);
+    </script>
 </body>
 </html>

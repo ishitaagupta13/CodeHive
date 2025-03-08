@@ -166,12 +166,14 @@ document.getElementById("registerForm").addEventListener("submit", function (e) 
     });
 
     function redirectToDashboard(role) {
+        
+    
         if (role === "organizer") {
-            window.location.href = "../organizer-dashboard.html";
+            window.location.href = "organizer-dashboard.html";
         } else if (role === "judge") {
-            window.location.href = "../judge-dashboard.html";
+            window.location.href = "judge-dashboard.html";
         } else {
-            window.location.href = "../participant-dashboard.html";
+            window.location.href = "participant-dashboard.html";
         }
     }
 </script>
