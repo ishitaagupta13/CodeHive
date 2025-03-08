@@ -141,5 +141,419 @@
             </div>
         </div>
     </div>
+    <script>
+        // This script can be added to each dashboard page to make the links functional
+// It should be included after the existing script tags in each dashboard file
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize navigation links
+    initializeNavigationLinks();
+    
+    // Make specific dashboard action links functional
+    initializeDashboardActions();
+});
+
+// Set up navigation between dashboards and within each dashboard
+function initializeNavigationLinks() {
+    // Map navigation items to their respective pages
+    const navMap = {
+        // Common navigation items
+        "Dashboard": "index.html",
+        "Schedule": "schedule.html",
+        "Settings": "settings.html",
+        
+        // Judge-specific navigation
+        "Submissions": "submissions.html",
+        "Evaluation": "evaluation.html",
+        "Criteria": "criteria.html",
+        
+        // Organizer-specific navigation
+        "Participants": "participants.html",
+        "Judges": "judges.html",
+        "Announcements": "announcements.html",
+        
+        // Participant-specific navigation
+        "My Submissions": "my-submissions.html",
+        "Feedback": "feedback.html",
+        "Rules": "rules.html"
+    };
+    
+    // Get all navigation links
+    const navLinks = document.querySelectorAll('nav ul li a');
+    
+    // Update href attributes based on link text
+    navLinks.forEach(link => {
+        const linkText = link.textContent.trim();
+        if (navMap[linkText]) {
+            link.href = navMap[linkText];
+        }
+    });
+    
+    // Make dashboard selection links work
+    const dashboardLinks = {
+        "Organizer Dashboard": "organizer-dashboard.html",
+        "Judge Dashboard": "judge-dashboard.html",
+        "Participant Dashboard": "participant-dashboard.html"
+    };
+    
+    // Add dashboard switcher if not present
+    if (!document.querySelector('.dashboard-switcher')) {
+        const userInfo = document.querySelector('.user-info');
+        if (userInfo) {
+            const dashboardSwitcher = document.createElement('div');
+            dashboardSwitcher.className = 'dashboard-switcher';
+            dashboardSwitcher.innerHTML = `
+                <select id="dashboard-select">
+                    <option value="judge-dashboard.html">Judge Dashboard</option>
+                    <option value="organizer-dashboard.html">Organizer Dashboard</option>
+                    <option value="participant-dashboard.html">Participant Dashboard</option>
+                </select>
+            `;
+            
+            userInfo.insertBefore(dashboardSwitcher, userInfo.querySelector('.logout'));
+            
+            // Set current selection based on page
+            const currentPage = window.location.pathname.split('/').pop();
+            const selectElement = dashboardSwitcher.querySelector('select');
+            if (selectElement) {
+                selectElement.value = currentPage;
+                
+                // Add change event listener
+                selectElement.addEventListener('change', function() {
+                    window.location.href = this.value;
+                });
+            }
+        }
+    }
+    
+    // Make logout links functional
+    const logoutLinks = document.querySelectorAll('.logout');
+    logoutLinks.forEach(link => {
+        link.href = "login.html";
+    });
+}
+
+// Make specific dashboard action links and buttons functional
+function initializeDashboardActions() {
+    // Make view all links functional
+    const viewAllLinks = document.querySelectorAll('.view-all');
+    viewAllLinks.forEach(link => {
+        const linkText = link.textContent.trim();
+        
+        if (linkText === "View All Submissions") {
+            link.href = "submissions.html";
+        } else if (linkText === "View All Feedback") {
+            link.href = "feedback.html";
+        } else if (linkText === "View Full Report") {
+            link.href = "reports.html";
+        }
+    });
+    
+    // Add functionality to preview buttons in judge dashboard
+    const previewButtons = document.querySelectorAll('.btn-preview');
+    previewButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            // Get project information from parent element
+            const projectItem = this.closest('.project-item');
+            if (projectItem) {
+                const projectName = projectItem.querySelector('h4').textContent;
+                // Create URL with project name as parameter
+                const url = `submission-preview.html?project=${encodeURIComponent(projectName)}`;
+                
+                // If preview panel exists, we're updating it instead of navigating
+                const previewPanel = document.getElementById('preview-panel');
+                if (previewPanel) {
+                    previewPanel.classList.add('active');
+                } else {
+                    window.location.href = url;
+                }
+            }
+        });
+    });
+    
+    // Add functionality to criteria details link
+    const criteriaDetailsLink = document.querySelector('.criteria-details');
+    if (criteriaDetailsLink) {
+        criteriaDetailsLink.href = "criteria-details.html";
+    }
+    
+    // Make resource item links functional in participant dashboard
+    const resourceLinks = document.querySelectorAll('.resource-item');
+    resourceLinks.forEach(link => {
+        const resourceName = link.querySelector('span').textContent.trim();
+        
+        switch (resourceName) {
+            case "Competition Guidelines":
+                link.href = "guidelines.html";
+                break;
+            case "Tutorial Videos":
+                link.href = "videos.html";
+                break;
+            case "Discussion Forum":
+                link.href = "forum.html";
+                break;
+            case "FAQ":
+                link.href = "faq.html";
+                break;
+        }
+    });
+    
+    // Add functionality to buttons in organizer dashboard
+    setupOrganizerDashboardButtons();
+    
+    // Add functionality to buttons in judge dashboard
+    setupJudgeDashboardButtons();
+    
+    // Add functionality to buttons in participant dashboard
+    setupParticipantDashboardButtons();
+}
+
+// Set up specific buttons for the organizer dashboard
+function setupOrganizerDashboardButtons() {
+    // Review registrations button
+    const reviewRegistrationsBtn = document.getElementById('review-registrations');
+    if (reviewRegistrationsBtn) {
+        reviewRegistrationsBtn.addEventListener('click', function() {
+            const registrationPanel = document.getElementById('registration-panel');
+            if (registrationPanel) {
+                registrationPanel.scrollIntoView({ behavior: 'smooth' });
+            } else {
+                window.location.href = "registration-requests.html";
+            }
+        });
+    }
+    
+    // Timeline edit button
+    const editTimelineBtn = document.getElementById('edit-timeline');
+    if (editTimelineBtn) {
+        editTimelineBtn.addEventListener('click', function() {
+            window.location.href = "edit-timeline.html";
+        });
+    }
+    
+    // Approval and rejection buttons
+    const approveButtons = document.querySelectorAll('.btn-approve');
+    const rejectButtons = document.querySelectorAll('.btn-reject');
+    
+    approveButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const row = this.closest('tr');
+            alert(`Approved registration for ${row.querySelector('td').textContent}`);
+            row.style.backgroundColor = "#eaffea";
+            setTimeout(() => {
+                row.remove();
+                updatePendingCount();
+            }, 1000);
+        });
+    });
+    
+    rejectButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const row = this.closest('tr');
+            alert(`Rejected registration for ${row.querySelector('td').textContent}`);
+            row.style.backgroundColor = "#ffeaea";
+            setTimeout(() => {
+                row.remove();
+                updatePendingCount();
+            }, 1000);
+        });
+    });
+    
+    // Update pending count when approving/rejecting
+    function updatePendingCount() {
+        const statCircle = document.querySelector('.stat-circle.warning span');
+        if (statCircle) {
+            let count = parseInt(statCircle.textContent);
+            count = Math.max(0, count - 1);
+            statCircle.textContent = count.toString();
+        }
+    }
+    
+    // Quick action buttons
+    const sendAnnouncementBtn = document.getElementById('send-announcement');
+    if (sendAnnouncementBtn) {
+        sendAnnouncementBtn.addEventListener('click', function() {
+            const modal = document.getElementById('announcement-modal');
+            if (modal) {
+                modal.style.display = "block";
+            } else {
+                window.location.href = "send-announcement.html";
+            }
+        });
+    }
+    
+    const exportDataBtn = document.getElementById('export-data');
+    if (exportDataBtn) {
+        exportDataBtn.addEventListener('click', function() {
+            alert("Exporting data... Your file will be ready for download shortly.");
+        });
+    }
+    
+    const generateReportBtn = document.getElementById('generate-report');
+    if (generateReportBtn) {
+        generateReportBtn.addEventListener('click', function() {
+            window.location.href = "generate-report.html";
+        });
+    }
+    
+    const configureSettingsBtn = document.getElementById('configure-settings');
+    if (configureSettingsBtn) {
+        configureSettingsBtn.addEventListener('click', function() {
+            window.location.href = "settings.html";
+        });
+    }
+    
+    // Modal close buttons
+    const closeModalBtns = document.querySelectorAll('.close-modal');
+    closeModalBtns.forEach(button => {
+        button.addEventListener('click', function() {
+            const modal = this.closest('.modal');
+            if (modal) {
+                modal.style.display = "none";
+            }
+        });
+    });
+    
+    // Cancel announcement button
+    const cancelAnnouncementBtn = document.getElementById('cancel-announcement');
+    if (cancelAnnouncementBtn) {
+        cancelAnnouncementBtn.addEventListener('click', function() {
+            const modal = document.getElementById('announcement-modal');
+            if (modal) {
+                modal.style.display = "none";
+            }
+        });
+    }
+    
+    // Announcement form submission
+    const announcementForm = document.getElementById('announcement-form');
+    if (announcementForm) {
+        announcementForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const title = document.getElementById('announcement-title').value;
+            const recipients = document.getElementById('announcement-recipients').value;
+            alert(`Announcement "${title}" sent to ${recipients}`);
+            
+            // Hide modal
+            const modal = document.getElementById('announcement-modal');
+            if (modal) {
+                modal.style.display = "none";
+            }
+            
+            // Reset form
+            this.reset();
+        });
+    }
+    
+    // Pagination
+    const paginationLinks = document.querySelectorAll('.pagination .page-link');
+    paginationLinks.forEach(link => {
+        link.addEventListener('click', function(e) {
+            e.preventDefault();
+            
+            // Remove active class from all links
+            paginationLinks.forEach(l => l.classList.remove('active'));
+            
+            // Add active class to clicked link
+            this.classList.add('active');
+            
+            // In a real application, this would load the appropriate page data
+            alert(`Navigating to page ${this.textContent}`);
+        });
+    });
+}
+
+// Set up specific buttons for the judge dashboard
+function setupJudgeDashboardButtons() {
+    // Full submission view button
+    const viewFullBtn = document.getElementById('view-full');
+    if (viewFullBtn) {
+        viewFullBtn.addEventListener('click', function() {
+            const projectName = document.querySelector('.preview-header h4')?.textContent;
+            if (projectName) {
+                window.location.href = `submission-details.html?project=${encodeURIComponent(projectName)}`;
+            } else {
+                window.location.href = "submission-details.html";
+            }
+        });
+    }
+    
+    // Save notes button
+    const saveNotesBtn = document.getElementById('save-notes');
+    if (saveNotesBtn) {
+        saveNotesBtn.addEventListener('click', function() {
+            alert("Your notes have been saved successfully");
+        });
+    }
+    
+    // Calendar button
+    const calendarBtn = document.getElementById('calendar-button');
+    if (calendarBtn) {
+        calendarBtn.addEventListener('click', function() {
+            alert("Calendar events have been added to your calendar");
+        });
+    }
+    
+    // Close preview panel
+    const closePanel = document.querySelector('.close-panel');
+    if (closePanel) {
+        closePanel.addEventListener('click', function() {
+            const previewPanel = document.getElementById('preview-panel');
+            if (previewPanel) {
+                previewPanel.classList.remove('active');
+            }
+        });
+    }
+    
+    // Detailed criteria view
+    const criteriaDetailsLink = document.querySelector('.criteria-details');
+    if (criteriaDetailsLink) {
+        criteriaDetailsLink.href = "criteria-details.html";
+    }
+}
+
+// Set up specific buttons for the participant dashboard
+function setupParticipantDashboardButtons() {
+    // Submit button
+    const submitBtn = document.getElementById('submit-button');
+    if (submitBtn) {
+        submitBtn.addEventListener('click', function() {
+            window.location.href = "submit-project.html";
+        });
+    }
+    
+    // Calendar button
+    const calendarBtn = document.getElementById('calendar-button');
+    if (calendarBtn) {
+        calendarBtn.addEventListener('click', function() {
+            alert("Events added to your calendar");
+        });
+    }
+    
+    // Notification panel toggling
+    const notificationsIcon = document.querySelector('.notifications');
+    if (notificationsIcon) {
+        notificationsIcon.addEventListener('click', function() {
+            const notificationsPanel = document.getElementById('notifications-panel');
+            if (notificationsPanel) {
+                notificationsPanel.classList.toggle('active');
+                
+                // Mark notifications as read when opened
+                const unreadNotifications = notificationsPanel.querySelectorAll('.notification.unread');
+                unreadNotifications.forEach(notification => {
+                    notification.classList.remove('unread');
+                });
+                
+                // Update badge count
+                const badge = document.querySelector('.notifications .badge');
+                if (badge) {
+                    badge.textContent = "0";
+                    badge.style.display = "none";
+                }
+            }
+        });
+    }
+}
+    </script>
 </body>
 </html>
