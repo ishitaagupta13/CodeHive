@@ -41,147 +41,151 @@
     
    
     <script>
-        // Firebase configuration - replace with your Firebase project details
-        const firebaseConfig = {
-            apiKey: "AIzaSyAOmgh-bwztV2Ikuca2KqCjeZFQmVEOPjs",
-            authDomain: "codehive-bcd90.firebaseapp.com",
-            projectId: "codehive-bcd90",
-            storageBucket: "codehive-bcd90.appspot.com",
-            messagingSenderId: "300677091996",
-            appId: "1:300677091996:web:c47af18d9e43f3355fd359"
-        };
-        
-        // Initialize Firebase
-        firebase.initializeApp(firebaseConfig);
-        const db = firebase.firestore();
-        
-        // DOM elements
-        const skillInput = document.getElementById('skill-input');
-        const addSkillBtn = document.getElementById('add-skill-btn');
-        const skillsTagsContainer = document.getElementById('skills-tags-container');
-        const findHackathonsBtn = document.getElementById('find-hackathons-btn');
-        const hackathonResults = document.getElementById('hackathon-results');
-        
-        let userSkills = [];
-        
-        // Add skill to list
-        addSkillBtn.addEventListener('click', addSkill);
-        skillInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
-                addSkill();
-            }
+        // Firebase configuration
+const firebaseConfig = {
+    apiKey: "AIzaSyAOmgh-bwztV2Ikuca2KqCjeZFQmVEOPjs",
+    authDomain: "codehive-bcd90.firebaseapp.com",
+    projectId: "codehive-bcd90",
+    storageBucket: "codehive-bcd90.appspot.com",
+    messagingSenderId: "300677091996",
+    appId: "1:300677091996:web:c47af18d9e43f3355fd359"
+};
+
+// Initialize Firebase
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+
+// DOM Elements
+const skillInput = document.getElementById('skill-input');
+const addSkillBtn = document.getElementById('add-skill-btn');
+const skillsTagsContainer = document.getElementById('skills-tags-container');
+const findHackathonsBtn = document.getElementById('find-hackathons-btn');
+const hackathonResults = document.getElementById('hackathon-results');
+
+let userSkills = [];
+
+// ✅ Add skill to list
+addSkillBtn.addEventListener('click', addSkill);
+skillInput.addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') {
+        addSkill();
+    }
+});
+
+function addSkill() {
+    const skill = skillInput.value.trim().toLowerCase();
+    if (skill && !userSkills.includes(skill)) {
+        userSkills.push(skill);
+        skillInput.value = ''; // Clear input after adding
+        renderSkillTags();
+    }
+}
+
+// ✅ Remove skill from list
+function removeSkill(skill) {
+    userSkills = userSkills.filter(s => s !== skill);
+    renderSkillTags();
+}
+
+// ✅ Render skill tags properly
+function renderSkillTags() {
+    skillsTagsContainer.innerHTML = ''; // Clear existing tags before re-rendering
+    userSkills.forEach(skill => {
+        const skillTag = document.createElement('div');
+        skillTag.className = 'skill-tag';
+        skillTag.innerHTML = `
+            ${skill}
+            <span class="remove-skill" data-skill="${skill}">&times;</span>
+        `;
+        skillsTagsContainer.appendChild(skillTag);
+    });
+
+    // Add event listeners to remove buttons
+    document.querySelectorAll('.remove-skill').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            removeSkill(e.target.getAttribute('data-skill'));
         });
-        
-        function addSkill() {
-            const skill = skillInput.value.trim().toLowerCase();
-            if (skill && !userSkills.includes(skill)) {
-                userSkills.push(skill);
-                skillInput.value = ''; // Clear input after adding
-                renderSkillTags();
-            }
-        }
-        
-        // Remove skill from list
-        function removeSkill(skill) {
-            userSkills = userSkills.filter(s => s !== skill);
-            renderSkillTags();
-        }
-        
-        // Render skill tags properly
-        function renderSkillTags() {
-            skillsTagsContainer.innerHTML = ''; // Clear existing tags before re-rendering
-            userSkills.forEach(skill => {
-                const skillTag = document.createElement('div');
-                skillTag.className = 'skill-tag';
-                skillTag.innerHTML = `
-                    ${skill}
-                    <span class="remove-skill" data-skill="${skill}">&times;</span>
-                `;
-                skillsTagsContainer.appendChild(skillTag);
-            });
-        
-            // Add event listeners to remove buttons
-            document.querySelectorAll('.remove-skill').forEach(btn => {
-                btn.addEventListener('click', (e) => {
-                    removeSkill(e.target.getAttribute('data-skill'));
-                });
-            });
-        }
-        
-        // Find hackathons based on skills
-        findHackathonsBtn.addEventListener('click', async () => {
-            if (userSkills.length === 0) {
-                alert('Please add at least one skill');
-                return;
-            }
-        
-            hackathonResults.innerHTML = '<p>Loading hackathons...</p>';
-        
-            try {
-                const snapshot = await db.collection('hackathons').get();
-                const hackathons = snapshot.docs.map(doc => ({
-                    id: doc.id,
-                    ...doc.data()
-                }));
-        
-                // 🔥 Debugging: Check if Firestore is returning data
-                console.log("📂 Hackathon data from Firestore:", hackathons);  
-        
-                displayHackathonRecommendations(hackathons);
-            } catch (error) {
-                console.error("🚨 Error fetching hackathons:", error);
-                hackathonResults.innerHTML = '<p>Failed to load hackathons. Please try again later.</p>';
-            }
-        });
-        //apply for hackathon
-        async function applyForHackathon(hackathonId, hackathonTitle) {
-            const user = firebase.auth().currentUser;
-            if (!user) {
-                alert("You need to log in first!");
-                return;
-            }
-        
-            const applicationRef = db.collection('applications').doc(user.uid + "_" + hackathonId);
-            
-            await applicationRef.set({
-                userId: user.uid,
-                userEmail: user.email,
-                userName: user.displayName || "Anonymous",
-                hackathonId: hackathonId,
-                hackathonTitle: hackathonTitle,
-                status: "pending", // Initially set to "pending"
-                appliedAt: firebase.firestore.Timestamp.now()
-            });
-        
-            alert("Application submitted! The organizer will review it.");
-        }
-        
-        
-        // Display hackathons
-        function displayHackathonRecommendations(hackathons) {
-            hackathonResults.innerHTML = '';
-        
-            hackathons.forEach(hackathon => {
-                const hackathonSkills = hackathon.skills.map(skill => skill.toLowerCase());
-        
-                if (hackathonSkills.some(skill => userSkills.includes(skill))) {
-                    const hackathonCard = document.createElement('div');
-                    hackathonCard.className = 'hackathon-card';
-                    hackathonCard.innerHTML = `
-                        <h3>${hackathon.title}</h3>
-                        <p>${hackathon.description}</p>
-                        <p><strong>Date:</strong> ${hackathon.date}</p>
-                        <p><strong>Location:</strong> ${hackathon.location}</p>
-                        <button class="apply-btn" onclick="applyForHackathon('${hackathon.id}', '${hackathon.title}')">Apply Now</button>
-                    `;
-                    hackathonResults.appendChild(hackathonCard);
-                }
-            });
-        
-            if (hackathonResults.innerHTML === '') {
-                hackathonResults.innerHTML = '<p>No matching hackathons found.</p>';
-            }
-        }
+    });
+}
+
+// ✅ Fetch hackathons based on `skills` array in Firestore
+findHackathonsBtn.addEventListener('click', async () => {
+    if (userSkills.length === 0) {
+        alert('Please add at least one skill');
+        return;
+    }
+
+    hackathonResults.innerHTML = '<p>Loading hackathons...</p>';
+
+    try {
+        const snapshot = await db.collection('hackathons').get();
+        const allHackathons = snapshot.docs.map(doc => ({
+            id: doc.id,
+            ...doc.data()
+        }));
+
+        console.log("📂 Fetched Hackathons from Firestore:", allHackathons);  
+
+        // ✅ Filter hackathons that match at least one skill from Firestore `skills` array
+        const matchingHackathons = allHackathons.filter(hackathon => 
+            Array.isArray(hackathon.skills) && hackathon.skills.some(skill => userSkills.includes(skill.toLowerCase()))
+        );
+
+        console.log("✅ Matching Hackathons:", matchingHackathons);
+
+        displayHackathonRecommendations(matchingHackathons);
+    } catch (error) {
+        console.error("🚨 Error fetching hackathons:", error);
+        hackathonResults.innerHTML = '<p>Failed to load hackathons. Please try again later.</p>';
+    }
+});
+
+// ✅ Display hackathons
+function displayHackathonRecommendations(hackathons) {
+    hackathonResults.innerHTML = '';
+
+    if (hackathons.length === 0) {
+        hackathonResults.innerHTML = '<p>No matching hackathons found.</p>';
+        return;
+    }
+
+    hackathons.forEach(hackathon => {
+        const hackathonCard = document.createElement('div');
+        hackathonCard.className = 'hackathon-card';
+        hackathonCard.innerHTML = `
+            <h3>${hackathon.title}</h3>
+            <p>${hackathon.description}</p>
+            <p><strong>Date:</strong> ${hackathon.date}</p>
+            <p><strong>Location:</strong> ${hackathon.location}</p>
+            <button class="apply-btn" onclick="applyForHackathon('${hackathon.id}', '${hackathon.title}')">Apply Now</button>
+        `;
+        hackathonResults.appendChild(hackathonCard);
+    });
+}
+
+// ✅ Apply for a hackathon
+async function applyForHackathon(hackathonId, hackathonTitle) {
+    const user = firebase.auth().currentUser;
+    if (!user) {
+        alert("You need to log in first!");
+        return;
+    }
+
+    const applicationRef = db.collection('applications').doc(user.uid + "_" + hackathonId);
+    
+    await applicationRef.set({
+        userId: user.uid,
+        userEmail: user.email,
+        userName: user.displayName || "Anonymous",
+        hackathonId: hackathonId,
+        hackathonTitle: hackathonTitle,
+        status: "pending", // Initially set to "pending"
+        appliedAt: firebase.firestore.Timestamp.now()
+    });
+
+    alert("Application submitted! The organizer will review it.");
+}
+
         
         </script>
         
