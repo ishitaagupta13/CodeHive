@@ -1054,50 +1054,171 @@ header {
 .primary:hover {
     box-shadow: 0
 }
-/* Sidebar toggle button */
-.sidebar-toggle {
-    background-color: #2c3e50;
-    color: white;
-    border: none;
-    padding: 8px 15px;
+/* Additional styles for functional navigation links */
+
+/* Dashboard Switcher */
+.dashboard-switcher {
+    margin: 10px 0;
+}
+
+.dashboard-switcher select {
+    width: 100%;
+    padding: 8px;
+    background-color: #2a2a2a;
+    color: #fff;
+    border: 1px solid #444;
     border-radius: 4px;
     cursor: pointer;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    margin: 10px;
 }
 
-.sidebar-toggle:hover {
-    background-color: #34495e;
+.dashboard-switcher select:focus {
+    outline: none;
+    border-color: #0078d7;
 }
 
-/* Sidebar positioning */
-.sidebar {
+/* Active navigation highlight */
+nav ul li.active a {
+    background-color: rgba(255, 255, 255, 0.1);
+    border-left: 3px solid #0078d7;
+}
+
+nav ul li a:hover {
+    background-color: rgba(255, 255, 255, 0.05);
+}
+
+/* Modal styling enhancements */
+.modal {
+    display: none;
     position: fixed;
     top: 0;
     left: 0;
+    width: 100%;
     height: 100%;
-    width: 250px;
-    background-color: #2c3e50;
-    color: white;
+    background-color: rgba(0, 0, 0, 0.5);
     z-index: 1000;
-    transition: transform 0.3s ease-in-out;
-    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.2);
+    align-items: center;
+    justify-content: center;
 }
 
-/* Hidden sidebar */
-.sidebar-hidden {
-    transform: translateX(-100%);
+.modal.active {
+    display: flex;
 }
 
-/* Visible sidebar */
-.sidebar-visible {
+.modal-content {
+    background-color: #fff;
+    border-radius: 8px;
+    max-width: 500px;
+    width: 90%;
+    padding: 20px;
+    position: relative;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+}
+
+/* Navigation and Link Transitions */
+nav ul li a,
+.btn,
+.resource-item,
+.view-all,
+.page-link {
+    transition: all 0.2s ease-in-out;
+}
+
+/* Notifications Panel */
+.notifications-panel {
+    position: fixed;
+    top: 60px;
+    right: -300px;
+    width: 300px;
+    height: auto;
+    max-height: 500px;
+    background-color: #fff;
+    box-shadow: -2px 0 10px rgba(0, 0, 0, 0.1);
+    border-radius: 8px 0 0 8px;
+    padding: 15px;
+    transition: right 0.3s ease;
+    z-index: 900;
+    overflow-y: auto;
+}
+
+.notifications-panel.active {
+    right: 0;
+}
+
+.notification {
+    padding: 10px;
+    border-bottom: 1px solid #eee;
+    position: relative;
+}
+
+.notification.unread::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 6px;
+    height: 6px;
+    background-color: #0078d7;
+    border-radius: 50%;
+}
+
+.notification-time {
+    font-size: 12px;
+    color: #777;
+    display: block;
+    margin-top: 5px;
+}
+
+/* Preview panel animation */
+#preview-panel {
+    transform: translateX(100%);
+    transition: transform 0.3s ease;
+}
+
+#preview-panel.active {
     transform: translateX(0);
 }
 
-/* Main content adjustments */
-main {
-    width: 100%;
-    margin-left: 0;
+/* Visual feedback for buttons */
+.btn:hover {
+    filter: brightness(1.1);
+}
+
+.btn:active {
+    transform: scale(0.98);
+}
+
+/* Table row transitions */
+tr {
+    transition: background-color 0.3s ease;
+}
+
+/* Pagination styling */
+.pagination {
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
+}
+
+.page-link {
+    display: inline-block;
+    padding: 5px 10px;
+    margin: 0 5px;
+    background-color: #f5f5f5;
+    border-radius: 4px;
+    color: #333;
+    text-decoration: none;
+}
+
+.page-link.active {
+    background-color: #0078d7;
+    color: white;
+}
+
+.page-link:hover {
+    background-color: #e0e0e0;
+}
+
+.page-link.active:hover {
+    background-color: #0067be;
 }
