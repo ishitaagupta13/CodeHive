@@ -554,6 +554,40 @@ function setupParticipantDashboardButtons() {
         });
     }
 }
+// participant.js - Update to handle profile navigation
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Get user info element
+    const userInfo = document.querySelector('.user-info span');
+    
+    // Add click event to the participant name
+    if (userInfo) {
+        userInfo.style.cursor = 'pointer';
+        userInfo.addEventListener('click', function() {
+            // Navigate to profile page
+            window.location.href = 'profile.html';
+        });
+        
+        // Add hover effect
+        userInfo.addEventListener('mouseenter', function() {
+            this.style.color = 'var(--accent-primary)';
+        });
+        
+        userInfo.addEventListener('mouseleave', function() {
+            this.style.color = '';
+        });
+    }
+    
+    // Also make the avatar clickable
+    const avatar = document.querySelector('.avatar');
+    if (avatar) {
+        avatar.style.cursor = 'pointer';
+        avatar.addEventListener('click', function() {
+            // Navigate to profile page
+            window.location.href = 'profile.html';
+        });
+    }
+});
     </script>
 </body>
 </html>

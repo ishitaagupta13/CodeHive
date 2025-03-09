@@ -1,0 +1,751 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Participant Profile</title>
+    <link rel="stylesheet" href="dashboard.css">
+    <style>
+        /* Additional styles for profile page */
+        .profile-container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        
+        .profile-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding-bottom: 2rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .profile-avatar {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background: linear-gradient(to right, var(--gradient-start), var(--gradient-end));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            font-size: 2.5rem;
+            margin-right: 2rem;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+        
+        .profile-info h2 {
+            margin-bottom: 0.5rem;
+        }
+        
+        .profile-status {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 16px;
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
+        }
+        
+        .profile-sections {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+        }
+        
+        .profile-section {
+            background-color: var(--card-bg);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 20px var(--shadow-color);
+            border: 1px solid var(--border-color);
+        }
+        
+        .profile-section h3 {
+            margin-bottom: 1.2rem;
+            padding-bottom: 0.8rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .profile-detail {
+            margin-bottom: 1.2rem;
+        }
+        
+        .profile-detail label {
+            display: block;
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            margin-bottom: 0.3rem;
+        }
+        
+        .profile-detail p {
+            font-size: 1rem;
+            color: var(--text-primary);
+        }
+        
+        .profile-controls {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 2rem;
+            gap: 1rem;
+        }
+        
+        .profile-edit-form {
+            display: none;
+        }
+        
+        .profile-edit-form.active {
+            display: block;
+        }
+        
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .skills-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+        }
+        
+        .skill-tag {
+            background-color: rgba(59, 130, 246, 0.1);
+            color: var(--accent-primary);
+            padding: 0.3rem 0.8rem;
+            border-radius: 16px;
+            font-size: 0.9rem;
+        }
+        
+        .profile-setup-container {
+            max-width: 700px;
+            margin: 2rem auto;
+            background-color: var(--card-bg);
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: 0 4px 20px var(--shadow-color);
+            border: 1px solid var(--border-color);
+        }
+        
+        .setup-step {
+            display: none;
+        }
+        
+        .setup-step.active {
+            display: block;
+        }
+        
+        .setup-navigation {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 2rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid var(--border-color);
+        }
+        
+        .step-indicator {
+            display: flex;
+            justify-content: center;
+            margin: 2rem 0;
+        }
+        
+        .step {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background-color: var(--bg-tertiary);
+            margin: 0 0.5rem;
+            cursor: pointer;
+        }
+        
+        .step.active {
+            background-color: var(--accent-primary);
+            transform: scale(1.2);
+        }
+    </style>
+    <script src="profile.js" defer></script>
+</head>
+<body>
+    <div class="sidebar">
+        <div class="logo">
+            <h1>CodeHive</h1>
+        </div>
+        <nav>
+            <ul>
+                <li><a href="participant-dashboard.html"><i class="icon-dashboard"></i> Dashboard</a></li>
+                <li><a href="#"><i class="icon-submissions"></i> My Submissions</a></li>
+                <li><a href="#"><i class="icon-feedback"></i> Feedback</a></li>
+                <li><a href="#"><i class="icon-schedule"></i> Schedule</a></li>
+                <li><a href="#"><i class="icon-rules"></i> Rules</a></li>
+                <li><a href="#"><i class="icon-settings"></i> Settings</a></li>
+            </ul>
+        </nav>
+        <div class="user-info">
+            <div class="avatar">PN</div>
+            <span>Participant Name</span>
+            <a href="#" class="logout">Log Out</a>
+        </div>
+    </div>
+
+    <main>
+        <header>
+            <div class="search-bar">
+                <input type="text" placeholder="Search...">
+                <button type="submit"><i class="icon-search"></i></button>
+            </div>
+            <div class="notifications">
+                <i class="icon-bell"></i>
+                <span class="badge">3</span>
+            </div>
+        </header>
+
+        <div class="content">
+            <!-- Profile View Mode -->
+            <div id="profile-view" class="profile-container">
+                <div class="profile-header">
+                    <div class="profile-avatar">PN</div>
+                    <div class="profile-info">
+                        <h2>Participant Name</h2>
+                        <p>Software Developer</p>
+                        <span class="profile-status status-approved">Active Participant</span>
+                    </div>
+                </div>
+                
+                <div class="profile-sections">
+                    <div class="profile-section">
+                        <h3>Personal Information</h3>
+                        <div class="profile-detail">
+                            <label>Email</label>
+                            <p>participant@example.com</p>
+                        </div>
+                        <div class="profile-detail">
+                            <label>Location</label>
+                            <p>San Francisco, CA</p>
+                        </div>
+                        <div class="profile-detail">
+                            <label>Joined</label>
+                            <p>January 15, 2025</p>
+                        </div>
+                        <div class="profile-detail">
+                            <label>Team</label>
+                            <p>CodeCrafters</p>
+                        </div>
+                    </div>
+                    
+                    <div class="profile-section">
+                        <h3>Skills & Expertise</h3>
+                        <div class="profile-detail">
+                            <label>Primary Skills</label>
+                            <div class="skills-list">
+                                <span class="skill-tag">JavaScript</span>
+                                <span class="skill-tag">React</span>
+                                <span class="skill-tag">Node.js</span>
+                                <span class="skill-tag">UI/UX Design</span>
+                            </div>
+                        </div>
+                        <div class="profile-detail">
+                            <label>Experience Level</label>
+                            <p>3+ years</p>
+                        </div>
+                        <div class="profile-detail">
+                            <label>Previous Competitions</label>
+                            <p>HackathonX 2024, CodeFest 2023</p>
+                        </div>
+                    </div>
+                    
+                    <div class="profile-section">
+                        <h3>Competition Status</h3>
+                        <div class="profile-detail">
+                            <label>Current Phase</label>
+                            <p><span class="phase">Development</span></p>
+                        </div>
+                        <div class="profile-detail">
+                            <label>Submissions</label>
+                            <p>2 of 3 completed</p>
+                        </div>
+                        <div class="profile-detail">
+                            <label>Average Score</label>
+                            <p>4.2/5.0</p>
+                        </div>
+                    </div>
+                    
+                    <div class="profile-section">
+                        <h3>Bio</h3>
+                        <div class="profile-detail">
+                            <p>Full-stack developer passionate about creating intuitive and accessible user experiences. Specializing in JavaScript frameworks and responsive design. Excited to collaborate with others and learn new technologies through this competition.</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="profile-controls">
+                    <button class="btn primary" id="edit-profile-btn">Edit Profile</button>
+                </div>
+            </div>
+            
+            <!-- Profile Edit Mode -->
+            <div id="profile-edit" class="profile-container profile-edit-form">
+                <h2>Edit Profile</h2>
+                
+                <form id="profile-edit-form">
+                    <div class="profile-section">
+                        <h3>Personal Information</h3>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="fullName">Full Name</label>
+                                <input type="text" id="fullName" name="fullName" value="Participant Name">
+                            </div>
+                            <div class="form-group">
+                                <label for="jobTitle">Tech Domain</label>
+                                <input type="text" id="jobTitle" name="jobTitle" value="Software Developer">
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="email">Email</label>
+                                <input type="email" id="email" name="email" value="participant@example.com">
+                            </div>
+                            <div class="form-group">
+                                <label for="location">Location</label>
+                                <input type="text" id="location" name="location" value="San Francisco, CA">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="team">Team</label>
+                            <input type="text" id="team" name="team" value="CodeCrafters">
+                        </div>
+                    </div>
+                    
+                    <div class="profile-section">
+                        <h3>Skills & Expertise</h3>
+                        <div class="form-group">
+                            <label for="skills">Skills (comma separated)</label>
+                            <input type="text" id="skills" name="skills" value="JavaScript, React, Node.js, UI/UX Design">
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="experience">Experience Level</label>
+                                <select id="experience" name="experience">
+                                    <option value="1-2">1-2 years</option>
+                                    <option value="3+" selected>3+ years</option>
+                                    <option value="5+">5+ years</option>
+                                    <option value="10+">10+ years</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="competitions">Previous Competitions</label>
+                                <input type="text" id="competitions" name="competitions" value="HackathonX 2024, CodeFest 2023">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="profile-section">
+                        <h3>Bio</h3>
+                        <div class="form-group">
+                            <label for="bio">About You</label>
+                            <textarea id="bio" name="bio" rows="5">Full-stack developer passionate about creating intuitive and accessible user experiences. Specializing in JavaScript frameworks and responsive design. Excited to collaborate with others and learn new technologies through this competition.</textarea>
+                        </div>
+                    </div>
+                    
+                    <div class="profile-controls">
+                        <button type="button" class="btn secondary" id="cancel-edit-btn">Cancel</button>
+                        <button type="submit" class="btn primary">Save Changes</button>
+                    </div>
+                </form>
+            </div>
+            
+            <!-- Profile Setup Mode (for first-time setup) -->
+            <div id="profile-setup" class="profile-setup-container" style="display: none;">
+                <h2>Complete Your Profile</h2>
+                <p>Let's set up your profile to maximize your competition experience.</p>
+                
+                <div class="step-indicator">
+                    <div class="step active" data-step="1"></div>
+                    <div class="step" data-step="2"></div>
+                    <div class="step" data-step="3"></div>
+                </div>
+                
+                <form id="profile-setup-form">
+                    <div class="setup-step active" id="step-1">
+                        <h3>Personal Information</h3>
+                        <div class="form-group">
+                            <label for="setup-fullName">Full Name</label>
+                            <input type="text" id="setup-fullName" name="fullName" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="setup-email">Email</label>
+                            <input type="email" id="setup-email" name="email" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="setup-jobTitle">Job Title</label>
+                            <input type="text" id="setup-jobTitle" name="jobTitle">
+                        </div>
+                        <div class="form-group">
+                            <label for="setup-location">Location</label>
+                            <input type="text" id="setup-location" name="location">
+                        </div>
+                        
+                        <div class="setup-navigation">
+                            <div></div>
+                            <button type="button" class="btn primary next-step" data-next="2">Next</button>
+                        </div>
+                    </div>
+                    
+                    <div class="setup-step" id="step-2">
+                        <h3>Skills & Experience</h3>
+                        <div class="form-group">
+                            <label for="setup-skills">Your Skills (comma separated)</label>
+                            <input type="text" id="setup-skills" name="skills">
+                        </div>
+                        <div class="form-group">
+                            <label for="setup-experience">Experience Level</label>
+                            <select id="setup-experience" name="experience">
+                                <option value="">Select experience level</option>
+                                <option value="beginner">Beginner (< 1 year)</option>
+                                <option value="1-2">1-2 years</option>
+                                <option value="3+">3+ years</option>
+                                <option value="5+">5+ years</option>
+                                <option value="10+">10+ years</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="setup-competitions">Previous Competitions</label>
+                            <input type="text" id="setup-competitions" name="competitions" placeholder="Separate by commas">
+                        </div>
+                        <div class="form-group">
+                            <label for="setup-team">Team Name (if applicable)</label>
+                            <input type="text" id="setup-team" name="team">
+                        </div>
+                        
+                        <div class="setup-navigation">
+                            <button type="button" class="btn secondary prev-step" data-prev="1">Back</button>
+                            <button type="button" class="btn primary next-step" data-next="3">Next</button>
+                        </div>
+                    </div>
+                    
+                    <div class="setup-step" id="step-3">
+                        <h3>About You</h3>
+                        <div class="form-group">
+                            <label for="setup-bio">Bio</label>
+                            <textarea id="setup-bio" name="bio" rows="5" placeholder="Tell us about yourself, your expertise, and what you hope to gain from this competition"></textarea>
+                        </div>
+                        
+                        <div class="setup-navigation">
+                            <button type="button" class="btn secondary prev-step" data-prev="2">Back</button>
+                            <button type="submit" class="btn primary">Complete Profile</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </main>
+
+    <div class="notifications-panel" id="notifications-panel">
+        <h3>Notifications</h3>
+        <div class="notification-list">
+            <div class="notification unread">
+                <p>Your submission has been received.</p>
+                <span class="notification-time">1 hour ago</span>
+            </div>
+            <div class="notification unread">
+                <p>New feedback available from Judge #2.</p>
+                <span class="notification-time">3 hours ago</span>
+            </div>
+            <div class="notification unread">
+                <p>Reminder: Workshop tomorrow at 10:00 AM.</p>
+                <span class="notification-time">Yesterday</span>
+            </div>
+            <div class="notification">
+                <p>Schedule updated for next week.</p>
+                <span class="notification-time">2 days ago</span>
+            </div>
+        </div>
+    </div>
+    <script>
+    // profile.js - Handles profile functionality
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Edit profile button functionality
+    const editProfileBtn = document.getElementById('edit-profile-btn');
+    const cancelEditBtn = document.getElementById('cancel-edit-btn');
+    const profileView = document.getElementById('profile-view');
+    const profileEdit = document.getElementById('profile-edit');
+    
+    if (editProfileBtn) {
+        editProfileBtn.addEventListener('click', function() {
+            profileView.style.display = 'none';
+            profileEdit.style.display = 'block';
+        });
+    }
+    
+    if (cancelEditBtn) {
+        cancelEditBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            profileEdit.style.display = 'none';
+            profileView.style.display = 'block';
+        });
+    }
+    
+    // Profile edit form submission
+    const profileEditForm = document.getElementById('profile-edit-form');
+    if (profileEditForm) {
+        profileEditForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Here you would typically send the form data to a server
+            // For this example, we'll just simulate success and return to view mode
+            
+            // Update profile view with new values
+            updateProfileFromForm();
+            
+            // Switch back to view mode
+            profileEdit.style.display = 'none';
+            profileView.style.display = 'block';
+            
+            // Show success message
+            showMessage('Profile updated successfully!', 'success');
+        });
+    }
+    
+    // Profile setup form functionality
+    const profileSetupForm = document.getElementById('profile-setup-form');
+    const setupSteps = document.querySelectorAll('.setup-step');
+    const stepIndicators = document.querySelectorAll('.step');
+    
+    // Next step buttons
+    const nextButtons = document.querySelectorAll('.next-step');
+    nextButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const nextStepNum = this.getAttribute('data-next');
+            goToStep(nextStepNum);
+        });
+    });
+    
+    // Previous step buttons
+    const prevButtons = document.querySelectorAll('.prev-step');
+    prevButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const prevStepNum = this.getAttribute('data-prev');
+            goToStep(prevStepNum);
+        });
+    });
+    
+    // Step indicators
+    stepIndicators.forEach(step => {
+        step.addEventListener('click', function() {
+            const stepNum = this.getAttribute('data-step');
+            goToStep(stepNum);
+        });
+    });
+    
+    // Handle profile setup form submission
+    if (profileSetupForm) {
+        profileSetupForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Here you would typically send the form data to a server
+            // For this example, we'll just simulate success and redirect to profile view
+            
+            // Hide setup form
+            document.getElementById('profile-setup').style.display = 'none';
+            
+            // Populate and show profile view
+            populateProfileFromSetup();
+            profileView.style.display = 'block';
+            
+            // Show success message
+            showMessage('Profile created successfully!', 'success');
+            
+            // Set profile as created in local storage
+            localStorage.setItem('profileCreated', 'true');
+        });
+    }
+    
+    // Function to update profile view from edit form
+    function updateProfileFromForm() {
+        // Get form values
+        const fullName = document.getElementById('fullName').value;
+        const jobTitle = document.getElementById('jobTitle').value;
+        const email = document.getElementById('email').value;
+        const location = document.getElementById('location').value;
+        const team = document.getElementById('team').value;
+        const skills = document.getElementById('skills').value;
+        const experience = document.getElementById('experience').value;
+        const competitions = document.getElementById('competitions').value;
+        const bio = document.getElementById('bio').value;
+        
+        // Update profile view
+        document.querySelector('.profile-info h2').textContent = fullName;
+        document.querySelector('.profile-info p').textContent = jobTitle;
+        document.querySelector('.profile-avatar').textContent = getInitials(fullName);
+        
+        // Update personal information
+        const profileDetails = document.querySelectorAll('.profile-detail');
+        profileDetails.forEach(detail => {
+            const label = detail.querySelector('label');
+            if (label) {
+                if (label.textContent === 'Email') {
+                    detail.querySelector('p').textContent = email;
+                } else if (label.textContent === 'Location') {
+                    detail.querySelector('p').textContent = location;
+                } else if (label.textContent === 'Team') {
+                    detail.querySelector('p').textContent = team;
+                } else if (label.textContent === 'Experience Level') {
+                    detail.querySelector('p').textContent = experience;
+                } else if (label.textContent === 'Previous Competitions') {
+                    detail.querySelector('p').textContent = competitions;
+                }
+            } else {
+                // This is probably the bio section
+                const bioSection = document.querySelector('.profile-section:nth-child(4) .profile-detail p');
+                if (bioSection) {
+                    bioSection.textContent = bio;
+                }
+            }
+        });
+        
+        // Update skills
+        const skillsList = document.querySelector('.skills-list');
+        skillsList.innerHTML = '';
+        const skillsArray = skills.split(',');
+        skillsArray.forEach(skill => {
+            const skillTag = document.createElement('span');
+            skillTag.className = 'skill-tag';
+            skillTag.textContent = skill.trim();
+            skillsList.appendChild(skillTag);
+        });
+    }
+    
+    // Function to populate profile from setup form
+    function populateProfileFromSetup() {
+        // Get form values
+        const fullName = document.getElementById('setup-fullName').value;
+        const jobTitle = document.getElementById('setup-jobTitle').value;
+        const email = document.getElementById('setup-email').value;
+        const location = document.getElementById('setup-location').value;
+        const team = document.getElementById('setup-team').value;
+        const skills = document.getElementById('setup-skills').value;
+        const experience = document.getElementById('setup-experience').value;
+        const competitions = document.getElementById('setup-competitions').value;
+        const bio = document.getElementById('setup-bio').value;
+        
+        // Update profile view
+        document.querySelector('.profile-info h2').textContent = fullName;
+        document.querySelector('.profile-info p').textContent = jobTitle || 'Participant';
+        document.querySelector('.profile-avatar').textContent = getInitials(fullName);
+        
+        // Update personal information
+        const profileDetails = document.querySelectorAll('.profile-detail');
+        profileDetails.forEach(detail => {
+            const label = detail.querySelector('label');
+            if (label) {
+                if (label.textContent === 'Email') {
+                    detail.querySelector('p').textContent = email;
+                } else if (label.textContent === 'Location') {
+                    detail.querySelector('p').textContent = location || 'Not specified';
+                } else if (label.textContent === 'Team') {
+                    detail.querySelector('p').textContent = team || 'Not specified';
+                } else if (label.textContent === 'Experience Level') {
+                    detail.querySelector('p').textContent = experience || 'Not specified';
+                } else if (label.textContent === 'Previous Competitions') {
+                    detail.querySelector('p').textContent = competitions || 'None';
+                }
+            } else {
+                // This is probably the bio section
+                const bioSection = document.querySelector('.profile-section:nth-child(4) .profile-detail p');
+                if (bioSection) {
+                    bioSection.textContent = bio || 'No bio provided';
+                }
+            }
+        });
+        
+        // Update skills
+        const skillsList = document.querySelector('.skills-list');
+        skillsList.innerHTML = '';
+        if (skills) {
+            const skillsArray = skills.split(',');
+            skillsArray.forEach(skill => {
+                const skillTag = document.createElement('span');
+                skillTag.className = 'skill-tag';
+                skillTag.textContent = skill.trim();
+                skillsList.appendChild(skillTag);
+            });
+        } else {
+            const skillTag = document.createElement('span');
+            skillTag.className = 'skill-tag';
+            skillTag.textContent = 'No skills specified';
+            skillsList.appendChild(skillTag);
+        }
+    }
+    
+    // Function to navigate to a specific setup step
+    function goToStep(stepNum) {
+        // Hide all steps
+        setupSteps.forEach(step => {
+            step.classList.remove('active');
+        });
+        
+        // Update step indicators
+        stepIndicators.forEach(indicator => {
+            indicator.classList.remove('active');
+        });
+        
+        // Show the selected step
+        document.getElementById(`step-${stepNum}`).classList.add('active');
+        
+        // Highlight the current step indicator
+        document.querySelector(`.step[data-step="${stepNum}"]`).classList.add('active');
+    }
+    
+    // Function to get initials from name
+    function getInitials(name) {
+        if (!name) return '';
+        const names = name.split(' ');
+        if (names.length === 1) return names[0].charAt(0);
+        return names[0].charAt(0) + names[names.length - 1].charAt(0);
+    }
+    
+    // Function to show message
+    function showMessage(message, type) {
+        const messageDiv = document.createElement('div');
+        messageDiv.className = `message ${type}`;
+        messageDiv.textContent = message;
+        
+        document.body.appendChild(messageDiv);
+        
+        setTimeout(() => {
+            messageDiv.classList.add('show');
+        }, 10);
+        
+        setTimeout(() => {
+            messageDiv.classList.remove('show');
+            setTimeout(() => {
+                messageDiv.remove();
+            }, 300);
+        }, 3000);
+    }
+    
+    // Check if profile is created
+    checkProfileStatus();
+});
+
+// Function to check if profile exists or needs to be created
+function checkProfileStatus() {
+    // In a real application, this would be an API call to check if the user has a profile
+    // For this example, we'll use localStorage to simulate
+    const profileCreated = localStorage.getItem('profileCreated');
+    
+    if (!profileCreated) {
+        // Profile doesn't exist, show setup form
+        document.getElementById('profile-view').style.display = 'none';
+        document.getElementById('profile-setup').style.display = 'block';
+    }
+}
+
+
+</script>
+</body>
+</html>
