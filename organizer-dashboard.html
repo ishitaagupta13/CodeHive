@@ -15,6 +15,7 @@
         <nav>
             <ul>
                 <li class="active"><a href="#"><i class="icon-dashboard"></i> Dashboard</a></li>
+                <li><a href="#"><i class="icon-participants"></i> Add A Hackathon </a></li>
                 <li><a href="#"><i class="icon-participants"></i> Participants</a></li>
                 <li><a href="#"><i class="icon-judges"></i> Judges</a></li>
                 <li><a href="#"><i class="icon-schedule"></i> Schedule</a></li>
@@ -22,9 +23,10 @@
                 <li><a href="#"><i class="icon-settings"></i> Settings</a></li>
             </ul>
         </nav>
-        <div class="user-info">
+        <div class="profile">
             <div class="avatar"></div>
-            <span>Organizer Name</span>
+            <span ><a href="#" >Organizer Profile</a></span>
+    
             <a href="#" class="logout">Log Out</a>
         </div>
     </div>
@@ -220,13 +222,67 @@
     <script>
     // This script can be added to each dashboard page to make the links functional
 // It should be included after the existing script tags in each dashboard file
+async function loadPendingApplications() {
+    try {
+        const applicationsRef = db.collection("applications").where("status", "==", "pending");
+        const snapshot = await applicationsRef.get();
+        
+        // Get the table body where we'll insert the application data
+        const tableBody = document.querySelector('#registration-panel tbody');
+        if (!tableBody) {
+            console.error("Registration table not found");
+            return;
+        }
+        
+        // Clear existing rows
+        tableBody.innerHTML = '';
+        
+        // Update pending count in the stat circle
+        const pendingCountElement = document.querySelector('.stat-circle.warning span');
+        if (pendingCountElement) {
+            pendingCountElement.textContent = snapshot.size;
+        }
+        
+        // If no pending applications
+        if (snapshot.empty) {
+            tableBody.innerHTML = '<tr><td colspan="5" class="text-center">No pending applications</td></tr>';
+            return;
+        }
+        
+        // Add each application to the table
+        snapshot.forEach(doc => {
+            const data = doc.data();
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${data.userName || 'Unknown'}</td>
+                <td>${data.userEmail || 'No email'}</td>
+                <td>${new Date(data.appliedAt.toDate()).toLocaleDateString()}</td>
+                <td><a href="#" class="btn-view" data-id="${doc.id}">View</a></td>
+                <td>
+                    <button class="btn-approve" data-id="${doc.id}" data-email="${data.userEmail}">Approve</button>
+                    <button class="btn-reject" data-id="${doc.id}">Reject</button>
+                </td>
+            `;
+            tableBody.appendChild(row);
+        });
+        
+        // Add event listeners to the approve/reject buttons
+        addApplicationButtonListeners();
+        
+    } catch (error) {
+        console.error("Error loading applications:", error);
+    }
+}
 
 document.addEventListener('DOMContentLoaded', function() {
-    // Initialize navigation links
+    // Initialize other dashboard functions
     initializeNavigationLinks();
-    
-    // Make specific dashboard action links functional
     initializeDashboardActions();
+    
+    // Load pending applications if we're on the organizer dashboard
+    if (window.location.pathname.includes('organizer-dashboard')) {
+        loadPendingApplications();
+    }
 });
 
 // Set up navigation between dashboards and within each dashboard
@@ -308,6 +364,126 @@ function initializeNavigationLinks() {
         link.href = "login.html";
     });
 }
+function addApplicationButtonListeners() {
+    // Approve button listeners
+    document.querySelectorAll('.btn-approve').forEach(button => {
+        button.addEventListener('click', async function() {
+            const applicationId = this.getAttribute('data-id');
+            const userEmail = this.getAttribute('data-email');
+            await approveApplication(applicationId, userEmail);
+        });
+    });
+    
+    // Reject button listeners
+    document.querySelectorAll('.btn-reject').forEach(button => {
+        button.addEventListener('click', async function() {
+            const applicationId = this.getAttribute('data-id');
+            await rejectApplication(applicationId);
+        });
+    });
+    
+    // View profile listeners
+    document.querySelectorAll('.btn-view').forEach(button => {
+        button.addEventListener('click', async function(e) {
+            e.preventDefault();
+            const applicationId = this.getAttribute('data-id');
+            // You could implement a modal to show more application details here
+            alert('View participant profile feature coming soon!');
+        });
+    });
+}
+
+// Approve Application
+async function approveApplication(applicationId, userEmail) {
+    try {
+        await db.collection("applications").doc(applicationId).update({ 
+            status: "approved",
+            approvedAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+        
+        // Optionally send notification to the user
+        // await sendApprovalNotification(userEmail);
+        
+        alert("Application approved successfully!");
+        
+        // Reload the applications to refresh the table
+        loadPendingApplications();
+    } catch (error) {
+        console.error("Error approving application:", error);
+        alert("Failed to approve application. Please try again.");
+    }
+}
+async function rejectApplication(applicationId) {
+    try {
+        await db.collection("applications").doc(applicationId).update({ 
+            status: "rejected",
+            rejectedAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+        
+        alert("Application rejected.");
+        
+        // Reload the applications to refresh the table
+        loadPendingApplications();
+    } catch (error) {
+        console.error("Error rejecting application:", error);
+        alert("Failed to reject application. Please try again.");
+    }
+}
+async function loadApplications() {
+    const applicationsRef = db.collection("applications").where("status", "==", "pending");
+    const snapshot = await applicationsRef.get();
+    const applicationsTable = document.getElementById("applications-table-body");
+
+    applicationsTable.innerHTML = "";
+
+    snapshot.forEach(doc => {
+        const data = doc.data();
+        const row = document.createElement("tr");
+        row.innerHTML = `
+            <td>${data.userName}</td>
+            <td>${data.userEmail}</td>
+            <td>${data.hackathonTitle}</td>
+            <td>
+                <button class="btn-approve" onclick="approveApplication('${doc.id}', '${data.userEmail}')">Approve</button>
+                <button class="btn-reject" onclick="rejectApplication('${doc.id}')">Reject</button>
+            </td>
+        `;
+        applicationsTable.appendChild(row);
+    });
+}
+
+// Approve Application
+async function approveApplication(applicationId, userEmail) {
+    await db.collection("applications").doc(applicationId).update({ status: "approved" });
+
+    sendApprovalEmail(userEmail); // Send approval email
+    alert("Application approved!");
+    loadApplications(); // Refresh applications list
+}
+
+// Reject Application
+async function rejectApplication(applicationId) {
+    await db.collection("applications").doc(applicationId).update({ status: "rejected" });
+    alert("Application rejected.");
+    loadApplications();
+}
+
+// Send Email (Using Firebase Functions or External Email API)
+async function sendApprovalEmail(email) {
+    const response = await fetch("https://your-email-api.com/send", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+            to: email,
+            subject: "Hackathon Application Approved!",
+            message: "Congratulations! Your application has been approved. Check your dashboard for updates."
+        })
+    });
+    console.log("Email sent:", await response.json());
+}
+
+// Load applications on page load
+document.addEventListener("DOMContentLoaded", loadApplications);
 
 // Make specific dashboard action links and buttons functional
 function initializeDashboardActions() {

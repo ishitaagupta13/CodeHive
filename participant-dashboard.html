@@ -15,7 +15,7 @@
         <nav>
             <ul>
                 <li class="active"><a href="#"><i class="icon-dashboard"></i> Dashboard</a></li>
-                <li><a href="#"><i class="icon-submissions"></i> My Submissions</a></li>
+                <li><a href="hackathon_discovery.html"><i class="icon-submissions"></i> Search for Hackathon</a></li>
                 <li><a href="#"><i class="icon-feedback"></i> Feedback</a></li>
                 <li><a href="#"><i class="icon-schedule"></i> Schedule</a></li>
                 <li><a href="#"><i class="icon-rules"></i> Rules</a></li>
@@ -56,7 +56,7 @@
                             <span>65%</span>
                         </div>
                         <p>Your latest submission is in progress</p>
-                        <button class="btn primary" id="submit-button">Update Submission</button>
+                        <button id="updateSubmissionBtn" class="btn-preview">Update Submission</button>
                     </div>
                 </div>
                 
@@ -142,6 +142,15 @@
         </div>
     </div>
     <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                const updateSubmissionBtn = document.getElementById('updateSubmissionBtn');
+    
+                updateSubmissionBtn.addEventListener('click', function() {
+                    // Redirect to the editor page
+                    window.location.href = 'editor.html';
+                });
+            });
+    
         document.addEventListener('DOMContentLoaded', function () {
             const sidebar = document.querySelector('.sidebar');
             const sidebarToggle = document.createElement('button');

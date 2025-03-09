@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Live Code Editor</title>
+    <link rel="stylesheet" href="dashboard.css"> <!-- Or editor-specific CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/@codesandbox/sandpack-react@2.20.0/dist/index.css" />
+    <style>
+        /* Basic Editor Styling */
+        #editor {
+            width: 100%;
+            height: 500px; /* Adjust as needed */
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Live Code Editor</h1>
+
+    <div id="editor"></div>
+
+    <script src="https://unpkg.com/@codesandbox/sandpack-react@2.20.0/dist/index.umd.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log("DOMContentLoaded event fired"); // Add this line
+    
+            // Initialize the editor (e.g., using CodeMirror, Monaco Editor, or Sandpack)
+            const editorElement = document.getElementById('editor');
+            console.log("Editor Element:", editorElement); // Add this line
+    
+            // Load saved code from local storage, if available
+            let savedCode = localStorage.getItem('userCode') || '';
+    
+            // Initialize Sandpack Editor (Example)
+            try {
+                const sandpack = Sandpack.create(
+                  editorElement,
+                  {
+                    files: {
+                      "/index.js": {
+                        code: savedCode,
+                        active: true
+                      }
+                    },
+                    template: "vanilla",  // or "react", "vue", etc.
+                    options: {
+                      readOnly: false,
+                      showLineNumbers: true,
+                      theme: 'dark'
+                    }
+                  }
+                );
+    
+                sandpack.listen((msg) => {
+                  if (msg.type === "transpiled") {
+                    localStorage.setItem('userCode', sandpack.files['/index.js'].code);
+                  }
+                });
+    
+                console.log("Sandpack initialized successfully:", sandpack); // Add this line
+            } catch (error) {
+                console.error("Sandpack initialization error:", error); // Add this line
+            }
+        });
+    </script>
+    
+</body>
+</html>
