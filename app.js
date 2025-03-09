@@ -11,7 +11,8 @@ import { getFirestore, collection, doc, setDoc, updateDoc, getDoc, addDoc, serve
 const firebaseConfig = {
   apiKey: "AIzaSyAOmgh-bwztV2Ikuca2KqCjeZFQmVEOPjs",
   aumessagingSenderId: "300677091996",
-  appId: "1:300677091996:web:c47af18d9e43f3355fd359",thDomain: "codehive-bcd90.firebaseapp.com",
+  appId: "1:300677091996:web:c47af18d9e43f3355fd359",
+  thDomain: "codehive-bcd90.firebaseapp.com",
   projectId: "codehive-bcd90",
   storageBucket: "codehive-bcd90.firebasestorage.app",
   

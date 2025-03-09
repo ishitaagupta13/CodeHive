@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add New Hackathon</title>
+    <!-- Using the latest Firebase modular SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #e0e0e0;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #000000;
+        }
+        h1 {
+            color: #3498db;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .form-container {
+            background-color: #121212;
+            border-radius: 8px;
+            padding: 30px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+            border: 1px solid #333;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #3498db;
+        }
+        input, textarea, select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #444;
+            border-radius: 4px;
+            font-size: 16px;
+            background-color: #1e1e1e;
+            color: #e0e0e0;
+        }
+        input:focus, textarea:focus, select:focus {
+            outline: none;
+            border-color: #3498db;
+            box-shadow: 0 0 0 1px #3498db;
+        }
+        textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+        .checkbox-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .checkbox-container input {
+            width: auto;
+        }
+        button {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            display: block;
+            width: 100%;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #2980b9;
+        }
+        button:disabled {
+            background-color: #555;
+            cursor: not-allowed;
+        }
+        .alert {
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 4px;
+            display: none;
+        }
+        .alert-success {
+            background-color: #0d3320;
+            color: #4ade80;
+            border: 1px solid #166534;
+        }
+        .alert-error {
+            background-color: #380c0e;
+            color: #f87171;
+            border: 1px solid #991b1b;
+        }
+        .form-row {
+            display: flex;
+            gap: 20px;
+        }
+        .form-row .form-group {
+            flex: 1;
+        }
+        @media (max-width: 768px) {
+            .form-row {
+                flex-direction: column;
+                gap: 0;
+            }
+        }
+        .loading-spinner {
+            border: 4px solid #333;
+            border-top: 4px solid #3498db;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            animation: spin 2s linear infinite;
+            display: inline-block;
+            margin-right: 10px;
+            vertical-align: middle;
+            display: none;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        ::placeholder {
+            color: #666;
+        }
+        #firebaseStatus {
+            text-align: center;
+            margin-top: 20px;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <h1>Add New Hackathon</h1>
+    
+    <div class="form-container">
+        <div id="successAlert" class="alert alert-success">
+            Hackathon successfully added to the database!
+        </div>
+        <div id="errorAlert" class="alert alert-error">
+            Error adding hackathon to the database. Please try again.
+        </div>
+        
+        <form id="hackathonForm">
+            <div class="form-group">
+                <label for="hackathonName">Hackathon Name *</label>
+                <input type="text" id="hackathonName" required>
+            </div>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="startDate">Start Date *</label>
+                    <input type="date" id="startDate" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="endDate">End Date *</label>
+                    <input type="date" id="endDate" required>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="location">Location *</label>
+                <input type="text" id="location" placeholder="City, Country or Virtual" required>
+            </div>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="organizerName">Organizer Name *</label>
+                    <input type="text" id="organizerName" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="organizerEmail">Organizer Email *</label>
+                    <input type="email" id="organizerEmail" required>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="organizerPhone">Organizer Phone</label>
+                <input type="tel" id="organizerPhone">
+            </div>
+            
+            <div class="form-group">
+                <label for="description">Hackathon Description *</label>
+                <textarea id="description" placeholder="Provide a detailed description of your hackathon..." required></textarea>
+            </div>
+            
+            <div class="form-group">
+                <label for="theme">Hackathon Theme/Focus *</label>
+                <input type="text" id="theme" placeholder="e.g., AI, Healthcare, Sustainability" required>
+            </div>
+            <div class="form-group">
+                <label for="skills">Skills Required</label>
+                <input type="text" id="skills" placeholder="e.g., Python, Web Development, UI/UX">
+                <small class="form-text text-muted">Separate skills with commas</small>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="maxParticipants">Maximum Participants</label>
+                    <input type="number" id="maxParticipants" min="1">
+                </div>
+                
+                <div class="form-group">
+                    <label for="teamSize">Maximum Team Size</label>
+                    <input type="number" id="teamSize" min="1">
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="registrationDeadline">Registration Deadline</label>
+                <input type="date" id="registrationDeadline">
+            </div>
+            
+            <div class="form-group">
+                <label for="website">Website URL</label>
+                <input type="url" id="website" placeholder="https://yourhackathon.com">
+            </div>
+            
+            <div class="form-group checkbox-container">
+                <input type="checkbox" id="isVirtual">
+                <label for="isVirtual">This is a virtual event</label>
+            </div>
+            
+            <div class="form-group checkbox-container">
+                <input type="checkbox" id="hasPrizes">
+                <label for="hasPrizes">This hackathon offers prizes</label>
+            </div>
+            
+            <div class="form-group">
+                <label for="prizeDetails">Prize Details (if applicable)</label>
+                <textarea id="prizeDetails" placeholder="Describe the prizes offered..."></textarea>
+            </div>
+            
+            <button type="submit" id="submitButton">
+                <span id="loadingSpinner" class="loading-spinner"></span>
+                Add Hackathon
+            </button>
+        </form>
+        <!-- <div id="firebaseStatus"></div> -->
+    </div>
+    
+    <script>
+        // Firebase configuration - Replace with your actual config
+        const firebaseConfig = {
+            apiKey: "AIzaSyAOmgh-bwztV2Ikuca2KqCjeZFQmVEOPjs",
+            aumessagingSenderId: "300677091996",
+            appId: "1:300677091996:web:c47af18d9e43f3355fd359",
+            thDomain: "codehive-bcd90.firebaseapp.com",
+            projectId: "codehive-bcd90",
+            storageBucket: "codehive-bcd90.firebasestorage.app",
+            
+            measurementId: "G-LFEN8D4SR6"
+        
+        };
+        
+        // Check if Firebase is properly loaded
+        const firebaseStatus = document.getElementById('firebaseStatus');
+        
+        try {
+            // Initialize Firebase
+            firebase.initializeApp(firebaseConfig);
+            
+            // Get a reference to the Firestore database service
+            const db = firebase.firestore();
+            
+            // Verify connection to Firestore
+            db.collection('hackathons').limit(1).get()
+                .then(() => {
+                    console.log("Successfully connected to Firestore");
+                    firebaseStatus.textContent = "Connected to Firebase";
+                    firebaseStatus.style.color = "#4ade80";
+                })
+                .catch((error) => {
+                    console.error("Error connecting to Firestore: ", error);
+                    firebaseStatus.textContent = "Error connecting to Firebase: " + error.message;
+                    firebaseStatus.style.color = "#f87171";
+                });
+                
+            // Form submission handler
+            document.getElementById('hackathonForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                // Show loading spinner and disable button
+                const submitButton = document.getElementById('submitButton');
+                const loadingSpinner = document.getElementById('loadingSpinner');
+                submitButton.disabled = true;
+                loadingSpinner.style.display = 'inline-block';
+                submitButton.textContent = ' Submitting...';
+                submitButton.prepend(loadingSpinner);
+                
+                // Hide previous alerts
+                document.getElementById('successAlert').style.display = 'none';
+                document.getElementById('errorAlert').style.display = 'none';
+                
+                // Collect form data
+                const hackathonData = {
+                    name: document.getElementById('hackathonName').value,
+                    startDate: document.getElementById('startDate').value,
+                    endDate: document.getElementById('endDate').value,
+                    location: document.getElementById('location').value,
+                    organizer: {
+                        name: document.getElementById('organizerName').value,
+                        email: document.getElementById('organizerEmail').value,
+                        phone: document.getElementById('organizerPhone').value || null,
+                    },
+                    description: document.getElementById('description').value,
+                    theme: document.getElementById('theme').value,
+                    maxParticipants: parseInt(document.getElementById('maxParticipants').value) || null,
+                    teamSize: parseInt(document.getElementById('teamSize').value) || null,
+                    registrationDeadline: document.getElementById('registrationDeadline').value || null,
+                    website: document.getElementById('website').value || null,
+                    isVirtual: document.getElementById('isVirtual').checked,
+                    hasPrizes: document.getElementById('hasPrizes').checked,
+                    prizeDetails: document.getElementById('prizeDetails').value || null,
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp(), 
+                    updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    status: 'active'
+                };
+                
+                console.log("Attempting to save hackathon data to 'hackathons' collection:", hackathonData);
+                
+                // Add to Firestore hackathons collection
+                db.collection('hackathons').add(hackathonData)
+                    .then((docRef) => {
+                        console.log("Hackathon successfully added with ID: ", docRef.id);
+                        
+                        // Show success message
+                        const successAlert = document.getElementById('successAlert');
+                        successAlert.textContent = `Hackathon "${hackathonData.name}" successfully added! `;
+                        successAlert.style.display = 'block';
+                        setTimeout(() => {
+                            // Redirect to dashboard
+                            window.location.href = '/dashboard.html'; // Adjust this path to your dashboard URL
+                        }, 1500);
+                        // Reset form
+                        document.getElementById('hackathonForm').reset();
+                        
+                        // Set default dates again
+                        const today = new Date().toISOString().split('T')[0];
+                        document.getElementById('startDate').value = today;
+                        document.getElementById('endDate').value = today;
+                        
+                        // Re-enable button and hide spinner
+                        submitButton.disabled = false;
+                        loadingSpinner.style.display = 'none';
+                        submitButton.textContent = 'Add Hackathon';
+                        
+                        // Scroll to success message
+                        successAlert.scrollIntoView({ behavior: 'smooth' });
+                    })
+                    .catch((error) => {
+                        console.error("Error adding hackathon to database: ", error);
+                        
+                        // Show error message with details
+                        const errorAlert = document.getElementById('errorAlert');
+                        errorAlert.textContent = `Error adding hackathon: ${error.message}. Please try again.`;
+                        errorAlert.style.display = 'block';
+                        
+                        // Re-enable button and hide spinner
+                        submitButton.disabled = false;
+                        loadingSpinner.style.display = 'none';
+                        submitButton.textContent = 'Add Hackathon';
+                        
+                    });
+            });
+            
+        } catch (error) {
+            console.error("Error initializing Firebase: ", error);
+            firebaseStatus.textContent = "Error initializing Firebase: " + error.message;
+            firebaseStatus.style.color = "#f87171";
+        }
+        // Get the skills input value
+const skillsInput = document.getElementById('skills').value;
+
+// Convert comma-separated string to array, trim whitespace, and filter out empty entries
+const skillsArray = skillsInput.split(',')
+    .map(skill => skill.trim())
+    .filter(skill => skill !== '');
+
+// Add the skills array to your hackathonData object
+const hackathonData = {
+    // ...other fields
+    skills: skills,
+    // ...other fields
+};
+        // Form validation for dates
+        document.getElementById('startDate').addEventListener('change', function() {
+            document.getElementById('endDate').min = this.value;
+            if (document.getElementById('endDate').value && 
+                document.getElementById('endDate').value < this.value) {
+                document.getElementById('endDate').value = this.value;
+            }
+        });
+        
+        document.getElementById('endDate').addEventListener('change', function() {
+            document.getElementById('startDate').max = this.value;
+            if (document.getElementById('startDate').value && 
+                document.getElementById('startDate').value > this.value) {
+                document.getElementById('startDate').value = this.value;
+            }
+        });
+        
+        // Initialize dates to today as default
+        const today = new Date().toISOString().split('T')[0];
+        document.getElementById('startDate').value = today;
+        document.getElementById('endDate').value = today;
+    </script>
+</body>
+</html>

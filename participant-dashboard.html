@@ -142,61 +142,363 @@
         </div>
     </div>
     <script>
-            document.addEventListener('DOMContentLoaded', function() {
-                const updateSubmissionBtn = document.getElementById('updateSubmissionBtn');
+    document.addEventListener('DOMContentLoaded', function() {
+        // Initialize Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyAOmgh-bwztV2Ikuca2KqCjeZFQmVEOPjs",
+            authDomain: "codehive-bcd90.firebaseapp.com",
+            projectId: "codehive-bcd90",
+            storageBucket: "codehive-bcd90.firebasestorage.app",
+            messagingSenderId: "300677091996",
+            appId: "1:300677091996:web:c47af18d9e43f3355fd359",
+            measurementId: "G-LFEN8D4SR6"
+        };
     
-                updateSubmissionBtn.addEventListener('click', function() {
-                    // Redirect to the editor page
-                    window.location.href = 'editor.html';
-                });
-            });
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+        const auth = firebase.auth();
     
-        document.addEventListener('DOMContentLoaded', function () {
-            const sidebar = document.querySelector('.sidebar');
-            const sidebarToggle = document.createElement('button');
-            const body = document.body;
+        // Setup sidebar functionality
+        const sidebar = document.querySelector('.sidebar');
+        const sidebarToggle = document.createElement('button');
+        const body = document.body;
         
-            // Add sidebar toggle button dynamically
-            sidebarToggle.innerHTML = '☰';
-            sidebarToggle.classList.add('sidebar-toggle');
-            body.appendChild(sidebarToggle);
+        // Add sidebar toggle button dynamically
+        sidebarToggle.innerHTML = '☰';
+        sidebarToggle.classList.add('sidebar-toggle');
+        body.appendChild(sidebarToggle);
         
-            // Function to toggle sidebar visibility
-            function toggleSidebar() {
-                sidebar.classList.toggle('sidebar-hidden');
-                sidebar.classList.toggle('sidebar-visible');
+        // Function to toggle sidebar visibility
+        function toggleSidebar() {
+            sidebar.classList.toggle('sidebar-hidden');
+            sidebar.classList.toggle('sidebar-visible');
+        }
+        
+        // Open/close sidebar on button click
+        sidebarToggle.addEventListener('click', function(event) {
+            event.stopPropagation();
+            toggleSidebar();
+        });
+        
+        // Close sidebar when clicking outside
+        document.addEventListener('click', function(event) {
+            if (!sidebar.contains(event.target) && !sidebarToggle.contains(event.target)) {
+                sidebar.classList.add('sidebar-hidden');
+                sidebar.classList.remove('sidebar-visible');
             }
+        });
         
-            // Open/close sidebar on button click
-            sidebarToggle.addEventListener('click', function (event) {
-                event.stopPropagation();
-                toggleSidebar();
-            });
+        // Prevent sidebar from closing when clicking inside
+        sidebar.addEventListener('click', function(event) {
+            event.stopPropagation();
+        });
         
-            // Close sidebar when clicking outside
-            document.addEventListener('click', function (event) {
-                if (!sidebar.contains(event.target) && !sidebarToggle.contains(event.target)) {
-                    sidebar.classList.add('sidebar-hidden');
-                    sidebar.classList.remove('sidebar-visible');
-                }
-            });
-        
-            // Prevent sidebar from closing when clicking inside
-            sidebar.addEventListener('click', function (event) {
-                event.stopPropagation();
-            });
-        
-            // Update active menu item and close sidebar
-            document.querySelectorAll('.sidebar nav ul li a').forEach(item => {
-                item.addEventListener('click', function () {
-                    document.querySelectorAll('.sidebar nav ul li').forEach(menuItem => {
-                        menuItem.classList.remove('active');
-                    });
-                    this.parentElement.classList.add('active');
-                    toggleSidebar(); // Close after clicking a menu item
+        // Update active menu item and close sidebar
+        document.querySelectorAll('.sidebar nav ul li a').forEach(item => {
+            item.addEventListener('click', function() {
+                document.querySelectorAll('.sidebar nav ul li').forEach(menuItem => {
+                    menuItem.classList.remove('active');
                 });
+                this.parentElement.classList.add('active');
+                toggleSidebar(); // Close after clicking a menu item
             });
         });
-    </script>        
+    
+        // Button event listeners
+        const updateSubmissionBtn = document.getElementById('updateSubmissionBtn');
+        if (updateSubmissionBtn) {
+            updateSubmissionBtn.addEventListener('click', function() {
+                // Redirect to the editor page
+                window.location.href = 'editor.html';
+            });
+        }
+    
+        // Listen for auth state changes
+        auth.onAuthStateChanged(user => {
+            if (user) {
+                // User is signed in, fetch their data
+                fetchUserData(user.uid);
+                fetchSubmissionData(user.uid);
+                fetchFeedbackData(user.uid);
+                fetchUpcomingEvents();
+                setupNotifications(user.uid);
+            } else {
+                // User is not signed in, redirect to login page
+                window.location.href = 'login.html';
+            }
+        });
+    
+        // Fetch and display user data
+        function fetchUserData(userId) {
+            db.collection('users').doc(userId).get()
+                .then(doc => {
+                    if (doc.exists) {
+                        const userData = doc.data();
+                        // Update welcome message
+                        document.querySelector('h2').textContent = `Welcome, ${userData.firstName || 'Participant'}!`;
+                        
+                        // Update competition status
+                        if (userData.status) {
+                            const statusElement = document.querySelector('.status-approved');
+                            statusElement.textContent = userData.status;
+                            
+                            // Add appropriate class based on status
+                            statusElement.className = `status-${userData.status.toLowerCase()}`;
+                        }
+                    }
+                })
+                .catch(error => {
+                    console.error("Error fetching user data:", error);
+                });
+        }
+    
+        // Fetch and display submission data
+        function fetchSubmissionData(userId) {
+            db.collection('submissions')
+                .where('userId', '==', userId)
+                .orderBy('timestamp', 'desc')
+                .limit(1)
+                .get()
+                .then(querySnapshot => {
+                    if (!querySnapshot.empty) {
+                        const submission = querySnapshot.docs[0].data();
+                        
+                        // Update progress circle
+                        const progressCircle = document.querySelector('.progress-circle');
+                        const progressValue = submission.completionPercentage || 0;
+                        progressCircle.setAttribute('data-progress', progressValue);
+                        progressCircle.querySelector('span').textContent = `${progressValue}%`;
+                        
+                        // Update submission status text
+                        const statusText = document.querySelector('.card-content p');
+                        statusText.textContent = submission.statusMessage || 'Your latest submission is in progress';
+                        
+                        // Update deadline countdown
+                        if (submission.deadline) {
+                            updateCountdown(submission.deadline.toDate());
+                        }
+                    }
+                })
+                .catch(error => {
+                    console.error("Error fetching submission data:", error);
+                });
+        }
+    
+        // Fetch and display feedback data
+        function fetchFeedbackData(userId) {
+            db.collection('feedback')
+                .where('userId', '==', userId)
+                .orderBy('timestamp', 'desc')
+                .limit(1)
+                .get()
+                .then(querySnapshot => {
+                    if (!querySnapshot.empty) {
+                        const feedbackCard = document.querySelector('.card:nth-child(2) .card-content');
+                        feedbackCard.innerHTML = ''; // Clear existing content
+                        
+                        querySnapshot.forEach(doc => {
+                            const feedback = doc.data();
+                            const feedbackDate = feedback.timestamp ? feedback.timestamp.toDate().toLocaleDateString() : 'Recent';
+                            
+                            const feedbackItem = document.createElement('div');
+                            feedbackItem.className = 'feedback-item';
+                            feedbackItem.innerHTML = `
+                                <p class="feedback-date">${feedbackDate}</p>
+                                <p class="feedback-text">"${feedback.message || 'No feedback message provided.'}"</p>
+                                <span class="feedback-rating">${feedback.rating || 'N/A'}/5</span>
+                            `;
+                            
+                            feedbackCard.appendChild(feedbackItem);
+                        });
+                        
+                        // Add "View All" link
+                        const viewAllLink = document.createElement('a');
+                        viewAllLink.href = 'feedback.html';
+                        viewAllLink.className = 'view-all';
+                        viewAllLink.textContent = 'View All Feedback';
+                        feedbackCard.appendChild(viewAllLink);
+                    }
+                })
+                .catch(error => {
+                    console.error("Error fetching feedback data:", error);
+                });
+        }
+    
+        // Fetch and display upcoming events
+        function fetchUpcomingEvents() {
+            const today = new Date();
+            
+            db.collection('events')
+                .where('date', '>=', today)
+                .orderBy('date', 'asc')
+                .limit(2)
+                .get()
+                .then(querySnapshot => {
+                    if (!querySnapshot.empty) {
+                        const eventsList = document.querySelector('.event-list');
+                        eventsList.innerHTML = ''; // Clear existing events
+                        
+                        querySnapshot.forEach(doc => {
+                            const event = doc.data();
+                            const eventDate = event.date.toDate();
+                            const formattedDate = eventDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+                            const startTime = event.startTime || '00:00';
+                            const endTime = event.endTime || '00:00';
+                            
+                            const eventItem = document.createElement('li');
+                            eventItem.innerHTML = `
+                                <div class="event-date">${formattedDate}</div>
+                                <div class="event-details">
+                                    <h4>${event.title || 'Untitled Event'}</h4>
+                                    <p>${startTime} - ${endTime}</p>
+                                </div>
+                            `;
+                            
+                            eventsList.appendChild(eventItem);
+                        });
+                    }
+                })
+                .catch(error => {
+                    console.error("Error fetching events:", error);
+                });
+        }
+    
+        // Setup notifications
+        function setupNotifications(userId) {
+            db.collection('notifications')
+                .where('userId', '==', userId)
+                .orderBy('timestamp', 'desc')
+                .limit(4)
+                .get()
+                .then(querySnapshot => {
+                    if (!querySnapshot.empty) {
+                        const notificationList = document.querySelector('.notification-list');
+                        notificationList.innerHTML = ''; // Clear existing notifications
+                        
+                        let unreadCount = 0;
+                        
+                        querySnapshot.forEach(doc => {
+                            const notification = doc.data();
+                            const notificationTime = getTimeAgo(notification.timestamp.toDate());
+                            const isUnread = notification.read === false;
+                            
+                            if (isUnread) {
+                                unreadCount++;
+                            }
+                            
+                            const notificationItem = document.createElement('div');
+                            notificationItem.className = `notification${isUnread ? ' unread' : ''}`;
+                            notificationItem.setAttribute('data-id', doc.id);
+                            notificationItem.innerHTML = `
+                                <p>${notification.message}</p>
+                                <span class="notification-time">${notificationTime}</span>
+                            `;
+                            
+                            notificationList.appendChild(notificationItem);
+                            
+                            // Add click event to mark as read
+                            notificationItem.addEventListener('click', () => {
+                                markNotificationAsRead(doc.id);
+                            });
+                        });
+                        
+                        // Update badge count
+                        document.querySelector('.badge').textContent = unreadCount;
+                    }
+                })
+                .catch(error => {
+                    console.error("Error fetching notifications:", error);
+                });
+                
+            // Toggle notifications panel
+            document.querySelector('.notifications').addEventListener('click', () => {
+                document.getElementById('notifications-panel').classList.toggle('show');
+            });
+        }
+    
+        // Mark notification as read
+        function markNotificationAsRead(notificationId) {
+            db.collection('notifications').doc(notificationId).update({
+                read: true
+            })
+            .then(() => {
+                const notificationElement = document.querySelector(`[data-id="${notificationId}"]`);
+                if (notificationElement) {
+                    notificationElement.classList.remove('unread');
+                    
+                    // Update badge count
+                    const badge = document.querySelector('.badge');
+                    const currentCount = parseInt(badge.textContent);
+                    if (currentCount > 0) {
+                        badge.textContent = currentCount - 1;
+                    }
+                }
+            })
+            .catch(error => {
+                console.error("Error marking notification as read:", error);
+            });
+        }
+    
+        // Update countdown timer
+        function updateCountdown(deadlineDate) {
+            const countdownElement = document.getElementById('submission-countdown');
+            
+            function updateTimer() {
+                const now = new Date();
+                const timeDiff = deadlineDate - now;
+                
+                if (timeDiff <= 0) {
+                    countdownElement.textContent = "Expired";
+                    return;
+                }
+                
+                const days = Math.floor(timeDiff / (1000 * 60 * 60 * 24));
+                const hours = Math.floor((timeDiff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                
+                countdownElement.textContent = `${days} days, ${hours} hours`;
+            }
+            
+            // Update immediately and then every minute
+            updateTimer();
+            setInterval(updateTimer, 60000);
+        }
+    
+        // Helper function to format time ago
+        function getTimeAgo(date) {
+            const now = new Date();
+            const diffInSeconds = Math.floor((now - date) / 1000);
+            
+            if (diffInSeconds < 60) {
+                return 'Just now';
+            }
+            
+            const diffInMinutes = Math.floor(diffInSeconds / 60);
+            if (diffInMinutes < 60) {
+                return `${diffInMinutes} minute${diffInMinutes > 1 ? 's' : ''} ago`;
+            }
+            
+            const diffInHours = Math.floor(diffInMinutes / 60);
+            if (diffInHours < 24) {
+                return `${diffInHours} hour${diffInHours > 1 ? 's' : ''} ago`;
+            }
+            
+            const diffInDays = Math.floor(diffInHours / 24);
+            if (diffInDays < 7) {
+                return diffInDays === 1 ? 'Yesterday' : `${diffInDays} days ago`;
+            }
+            
+            return date.toLocaleDateString();
+        }
+    
+        // Logout button
+        document.querySelector('.logout').addEventListener('click', (e) => {
+            e.preventDefault();
+            auth.signOut().then(() => {
+                window.location.href = 'login.html';
+            });
+        });
+    });
+</script>
 </body>
 </html>
