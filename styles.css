@@ -20,7 +20,7 @@ header {
 /* Navbar Container */
 .nav-container {
     display: flex;
-    justify-content: space-between; /* Ensures CodeHive is left-most & links are right-most */
+    justify-content: space-between; /* Keeps logo at left & links at right */
     align-items: center;
     max-width: 1200px;
     margin: auto;
@@ -29,21 +29,31 @@ header {
 
 /* CodeHive Logo (Left-most) */
 .logo {
+    display: flex;
+    align-items: center;
+    font-size: 1.8rem;
     color: #FFD700; /* Yellow */
-    font-size: 22px;
     font-weight: bold;
-    margin-left: 0; /* Ensures it stays at the left */
+    margin-left: 0; /* Ensures it sticks to the left */
+}
+
+/* Bee Image */
+.logo-img {
+    height: 30px; /* Adjust size to fit navbar */
+    width: auto; /* Maintain aspect ratio */
+    margin-right: 10px; /* Space between image and text */
 }
 
 /* Navigation Links (Right-most) */
 .nav-links {
     list-style: none;
     display: flex;
-    margin-left: auto; /* Pushes links completely to the right */
+    margin-left: auto; /* Pushes links to the extreme right */
+    gap: 20px; /* Adds spacing between links */
 }
 
 .nav-links li {
-    margin-left: 20px; /* Adds spacing between links */
+    margin-left: 10px;
 }
 
 .nav-links a {
@@ -55,6 +65,18 @@ header {
 
 .nav-links a:hover {
     color: #122fb2;
+}
+
+/* Responsive Navbar for Smaller Screens */
+@media (max-width: 768px) {
+    .nav-container {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .nav-links {
+        margin-top: 10px;
+    }
 }
 
 /* Background Image */
@@ -99,10 +121,10 @@ header {
     margin-top: 20px;
 }
 
-/* Register & Login Buttons in Pinkish Red */
+/* Register & Login Buttons */
 .btn {
     display: inline-block;
-    background: #25b4ec; /* Pinkish Red */
+    background: #25b4ec; /* Blue */
     color: white;
     padding: 12px 20px;
     font-size: 18px;
