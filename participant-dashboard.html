@@ -141,5 +141,58 @@
             </div>
         </div>
     </div>
+    <script>
+        // Add this to your participant.js file
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Create sidebar toggle button
+    const sidebarToggle = document.createElement('button');
+    sidebarToggle.classList.add('sidebar-toggle');
+    sidebarToggle.innerHTML = '<i class="icon-menu"></i> Menu';
+    document.querySelector('header').prepend(sidebarToggle);
+    
+    // Get the sidebar element
+    const sidebar = document.querySelector('.sidebar');
+    
+    // Initially hide the sidebar
+    sidebar.classList.add('sidebar-hidden');
+    
+    // Toggle sidebar visibility when clicking the toggle button
+    sidebarToggle.addEventListener('click', function(e) {
+        e.stopPropagation();
+        sidebar.classList.toggle('sidebar-hidden');
+        sidebar.classList.toggle('sidebar-visible');
+    });
+    
+    // Hide sidebar when clicking outside of it
+    document.addEventListener('click', function(e) {
+        if (!sidebar.contains(e.target) && !sidebarToggle.contains(e.target) && sidebar.classList.contains('sidebar-visible')) {
+            sidebar.classList.remove('sidebar-visible');
+            sidebar.classList.add('sidebar-hidden');
+        }
+    });
+    
+    // Prevent sidebar from closing when clicking inside it
+    sidebar.addEventListener('click', function(e) {
+        e.stopPropagation();
+    });
+    
+    // Add click event listeners to menu items
+    const menuItems = document.querySelectorAll('.sidebar nav ul li a');
+    menuItems.forEach(item => {
+        item.addEventListener('click', function() {
+            // Hide sidebar after menu item is clicked
+            sidebar.classList.remove('sidebar-visible');
+            sidebar.classList.add('sidebar-hidden');
+            
+            // Update active menu item
+            menuItems.forEach(menuItem => {
+                menuItem.parentElement.classList.remove('active');
+            });
+            this.parentElement.classList.add('active');
+        });
+    });
+});
+    </script>
 </body>
 </html>

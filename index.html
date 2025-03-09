@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CodeHive Hackathon</title>
     <link rel="stylesheet" href="styles.css">
-    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
 
@@ -39,7 +39,94 @@
             </div>
         </div>
     </section>
-
+    <!-- About Section -->
+<section class="about-container">
+    <div class="about-content">
+      <h2>About Us</h2>
+      <p>Welcome to democode, where we're passionate about creating innovative solutions to help you build better applications.</p>
+      <p>Our team of experienced developers works tirelessly to provide clean, efficient, and maintainable code that meets your specific needs.</p>
+      <div class="about-features">
+        <div class="feature">
+          <h3>Our Mission</h3>
+          <p>To simplify complex coding challenges and empower developers of all skill levels.</p>
+        </div>
+        <div class="feature">
+          <h3>Our Vision</h3>
+          <p>Building a community where knowledge sharing and collaboration drive technological advancement.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+  <!-- Contact Section -->
+<section class="contact-container">
+    <div class="contact-content">
+      <h2>Get In Touch</h2>
+      <p>Have a question ? Reach out to us!</p>
+      
+      <div class="contact-wrapper">
+        <!-- Contact Form -->
+        <div class="contact-form">
+            <form id="contactForm" action="https://formspree.io/f/xjkybdvl" method="POST">
+                <div class="form-group">
+                  <label for="name">Name</label>
+                  <input type="text" id="name" name="name" class="form-control" required>
+                </div>
+              
+                <div class="form-group">
+                  <label for="email">Email</label>
+                  <input type="email" id="email" name="email" class="form-control" required>
+                </div>
+              
+                <div class="form-group">
+                  <label for="subject">Subject</label>
+                  <input type="text" id="subject" name="subject" class="form-control" required>
+                </div>
+              
+                <div class="form-group">
+                  <label for="message">Message</label>
+                  <textarea id="message" name="message" class="form-control" required></textarea>
+                </div>
+              
+                <button type="submit" class="submit-btn">Send Message</button>
+              </form>
+              
+        </div>
+        
+        <!-- Contact Information -->
+        <div class="contact-info">
+          <div class="info-item location">
+            <h3>Our Location</h3>
+            <p>123 Web Development St, Digital City, Jaipur 304022</p>
+          </div>
+          
+          <div class="info-item phone">
+            <h3>Phone Number</h3>
+            <p><a href="tel:+1234567890">(123) 456-7890</a></p>
+          </div>
+          
+          <div class="info-item email">
+            <h3>Email Address</h3>
+            <p><a href="customersupport@CodeHive.com">info@democode.com</a></p>
+          </div>
+          
+          <!-- Social Media Links -->
+          <div class="social-links">
+            <a href="#" class="social-icon"><i class="fab fa-facebook-f"></i></a>
+            <a href="#" class="social-icon"><i class="fab fa-twitter"></i></a>
+            <a href="#" class="social-icon"><i class="fab fa-linkedin-in"></i></a>
+            <a href="#" class="social-icon"><i class="fab fa-instagram"></i></a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+  
+  <!-- For social icons, you can replace the text with actual icons using:
+  1. Font Awesome: <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+     Then: <i class="fab fa-facebook-f"></i> instead of "f"
+     
+  2. Or SVG icons
+  -->
     <footer>
         <p>© 2025 CodeHive Hackathon. All Rights Reserved.</p>
     </footer>
@@ -50,6 +137,32 @@
     <script src="firebase-config.js"></script>
     <script src="auth.js"></script>
     <script src="scripts.js"></script>
+    <script src="https://cdn.emailjs.com/dist/email.min.js"></script>
+    <script>
+        document.getElementById("contactForm").addEventListener("submit", async function(event) {
+          event.preventDefault();
+      
+          let formData = new FormData(this);
+      
+          try {
+            let response = await fetch("https://formspree.io/f/xjkybdvl", {
+              method: "POST",
+              body: formData,
+              headers: { "Accept": "application/json" }
+            });
+      
+            if (response.ok) {
+              alert("Message sent successfully!");
+              this.reset();
+            } else {
+              alert("Failed to send message. Please try again.");
+            }
+          } catch (error) {
+            alert("An error occurred. Please check your internet connection.");
+          }
+        });
+      </script>
+      
 
 </body>
 </html>

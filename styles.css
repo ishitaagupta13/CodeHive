@@ -67,27 +67,16 @@ header {
     color: #122fb2;
 }
 
-/* Responsive Navbar for Smaller Screens */
-@media (max-width: 768px) {
-    .nav-container {
-        flex-direction: column;
-        text-align: center;
-    }
-
-    .nav-links {
-        margin-top: 10px;
-    }
-}
-
-/* Background Image */
+/* Background Image - Limited to Hero Section only */
 .backgroundcover {
-    background: url('bg.jpg') no-repeat center center fixed;
+    background: url('bg.jpg') no-repeat center center;
     background-size: cover;
     height: 100vh;
     width: 100%;
     position: absolute;
     top: 0;
     z-index: -1;
+    /* Removed 'fixed' to ensure it doesn't extend beyond hero section */
 }
 
 /* Hero Section */
@@ -99,6 +88,7 @@ header {
     text-align: center;
     color: white;
     padding: 20px;
+    position: relative; /* Added to contain the hero section properly */
 }
 
 .hero-content {
@@ -114,6 +104,175 @@ header {
     font-size: 18px;
     margin: 15px 0;
     animation: fadeInUp 1.2s ease-in-out;
+}
+
+/* About Section - Stylish Design with Curved White Container */
+.about-container {
+    background-color: #000000; /* Black background */
+    padding: 80px 20px;
+    width: 100%;
+    position: relative;
+    overflow: hidden;
+}
+
+/* Add some decorative elements to the background */
+.about-container::before {
+    content: '';
+    position: absolute;
+    top: -50px;
+    left: -50px;
+    width: 200px;
+    height: 200px;
+    border-radius: 50%;
+    background: rgba(77, 166, 255, 0.1);
+    z-index: 0;
+}
+
+.about-container::after {
+    content: '';
+    position: absolute;
+    bottom: -50px;
+    right: -50px;
+    width: 250px;
+    height: 250px;
+    border-radius: 50%;
+    background: rgba(77, 166, 255, 0.1);
+    z-index: 0;
+}
+
+.about-content {
+    max-width: 1200px;
+    margin: 0 auto;
+    background-color: white;
+    border-radius: 20px;
+    padding: 40px;
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
+    position: relative;
+    z-index: 1;
+    overflow: hidden;
+    color: #333; /* Text color for the white background */
+}
+
+/* Add a subtle accent bar at the top */
+.about-content::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 8px;
+    background: linear-gradient(90deg, #25b4ec, #4da6ff, #122fb2);
+}
+
+.about-content h2 {
+    font-size: 36px;
+    margin-bottom: 30px;
+    text-align: center;
+    color: #222;
+    position: relative;
+    padding-bottom: 15px;
+}
+
+/* Stylish underline for the heading */
+.about-content h2::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 80px;
+    height: 3px;
+    background: #4da6ff;
+    border-radius: 3px;
+}
+
+.about-content p {
+    font-size: 18px;
+    line-height: 1.6;
+    margin-bottom: 25px;
+    color: #555;
+}
+
+.about-features {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    margin-top: 40px;
+    background: #f9f9f9;
+    border-radius: 12px;
+    padding: 30px;
+}
+
+.feature {
+    flex-basis: 47%;
+    margin-bottom: 30px;
+    position: relative;
+    padding-left: 25px;
+    transition: transform 0.3s ease;
+}
+
+/* Add hover effect to features */
+.feature:hover {
+    transform: translateY(-5px);
+}
+
+/* Add decorative element before features */
+.feature::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 8px;
+    width: 10px;
+    height: 10px;
+    background: #4da6ff;
+    border-radius: 50%;
+}
+
+.feature h3 {
+    font-size: 24px;
+    margin-bottom: 15px;
+    color: #333;
+    font-weight: 600;
+}
+
+.feature p {
+    margin-bottom: 0;
+    font-size: 16px;
+}
+
+/* Animation for the about section */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.about-content {
+    animation: fadeIn 1s ease-out;
+}
+
+.feature:nth-child(1) {
+    animation: fadeIn 1.2s ease-out;
+}
+
+.feature:nth-child(2) {
+    animation: fadeIn 1.4s ease-out;
+}
+  
+/* Responsive design for smaller screens */
+@media (max-width: 768px) {
+    .about-features {
+        flex-direction: column;
+    }
+    
+    .feature {
+        flex-basis: 100%;
+    }
 }
 
 /* Buttons */
@@ -139,6 +298,297 @@ header {
     transform: scale(1.1);
 }
 
+/* Responsive Navbar for Smaller Screens */
+@media (max-width: 768px) {
+    .nav-container {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .nav-links {
+        margin-top: 10px;
+    }
+}
+/* Contact Section - Matching the About Section Theme */
+.contact-container {
+    background-color: #000000; /* Black background */
+    padding: 80px 20px;
+    width: 100%;
+    position: relative;
+    overflow: hidden;
+}
+
+/* Decorative elements in background similar to about section */
+.contact-container::before {
+    content: '';
+    position: absolute;
+    top: -50px;
+    right: -50px;
+    width: 200px;
+    height: 200px;
+    border-radius: 50%;
+    background: rgba(77, 166, 255, 0.1);
+    z-index: 0;
+}
+
+.contact-container::after {
+    content: '';
+    position: absolute;
+    bottom: -50px;
+    left: -50px;
+    width: 250px;
+    height: 250px;
+    border-radius: 50%;
+    background: rgba(77, 166, 255, 0.1);
+    z-index: 0;
+}
+
+.contact-content {
+    max-width: 1200px;
+    margin: 0 auto;
+    background-color: white;
+    border-radius: 20px;
+    padding: 40px;
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
+    position: relative;
+    z-index: 1;
+    overflow: hidden;
+    color: #333;
+}
+
+/* Accent bar at the top */
+.contact-content::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 8px;
+    background: linear-gradient(90deg, #122fb2, #4da6ff, #25b4ec);
+}
+
+.contact-content h2 {
+    font-size: 36px;
+    margin-bottom: 30px;
+    text-align: center;
+    color: #222;
+    position: relative;
+    padding-bottom: 15px;
+}
+
+/* Stylish underline for the heading */
+.contact-content h2::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 80px;
+    height: 3px;
+    background: #4da6ff;
+    border-radius: 3px;
+}
+
+.contact-content p {
+    font-size: 18px;
+    line-height: 1.6;
+    margin-bottom: 25px;
+    color: #555;
+    text-align: center;
+}
+
+/* Contact form and info container */
+.contact-wrapper {
+    display: flex;
+    flex-wrap: wrap;
+    margin-top: 40px;
+    gap: 30px;
+}
+
+/* Contact form styling */
+.contact-form {
+    flex: 1;
+    min-width: 300px;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 500;
+    color: #333;
+}
+
+.form-control {
+    width: 100%;
+    padding: 12px 15px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 16px;
+    transition: border-color 0.3s;
+}
+
+.form-control:focus {
+    outline: none;
+    border-color: #4da6ff;
+    box-shadow: 0 0 0 3px rgba(77, 166, 255, 0.1);
+}
+
+textarea.form-control {
+    min-height: 150px;
+    resize: vertical;
+}
+
+.submit-btn {
+    background: #25b4ec;
+    color: white;
+    border: none;
+    padding: 12px 25px;
+    font-size: 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.3s, transform 0.2s;
+}
+
+.submit-btn:hover {
+    background: #122fb2;
+    transform: translateY(-3px);
+}
+
+/* Contact info styling */
+.contact-info {
+    flex: 1;
+    min-width: 300px;
+    background: #f9f9f9;
+    border-radius: 12px;
+    padding: 30px;
+}
+
+.info-item {
+    margin-bottom: 25px;
+    position: relative;
+    padding-left: 35px;
+}
+
+.info-item:last-child {
+    margin-bottom: 0;
+}
+
+/* Icons for contact info */
+.info-item::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 5px;
+    width: 24px;
+    height: 24px;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: contain;
+}
+
+.info-item.location::before {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%234da6ff'%3E%3Cpath d='M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z'/%3E%3C/svg%3E");
+}
+
+.info-item.phone::before {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%234da6ff'%3E%3Cpath d='M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z'/%3E%3C/svg%3E");
+}
+
+.info-item.email::before {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%234da6ff'%3E%3Cpath d='M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z'/%3E%3C/svg%3E");
+}
+
+.info-item h3 {
+    font-size: 20px;
+    margin-bottom: 8px;
+    color: #333;
+}
+
+.info-item p, .info-item a {
+    color: #666;
+    font-size: 16px;
+    line-height: 1.5;
+}
+
+.info-item a {
+    text-decoration: none;
+    transition: color 0.3s;
+}
+
+.info-item a:hover {
+    color: #4da6ff;
+}
+
+/* Social media links */
+.social-links {
+    display: flex;
+    gap: 15px;
+    margin-top: 30px;
+}
+
+.social-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    background: #fff;
+    border-radius: 50%;
+    color: #4da6ff;
+    font-size: 18px;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+}
+
+.social-icon:hover {
+    background: #4da6ff;
+    color: #fff;
+    transform: translateY(-3px);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .contact-wrapper {
+        flex-direction: column;
+    }
+    
+    .contact-info {
+        order: -1; /* Show info before form on mobile */
+    }
+    
+    .contact-content {
+        padding: 30px 20px;
+    }
+}
+
+/* Animation for the contact section */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.contact-content {
+    animation: fadeIn 1s ease-out;
+}
+
+.contact-form {
+    animation: fadeIn 1.2s ease-out;
+}
+
+.contact-info {
+    animation: fadeIn 1.4s ease-out;
+}
 /* Footer */
 footer {
     text-align: center;
