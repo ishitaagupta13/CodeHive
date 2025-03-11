@@ -164,28 +164,32 @@ function displayHackathonRecommendations(hackathons) {
 }
 
 // ✅ Apply for a hackathon
-async function applyForHackathon(hackathonId, hackathonTitle) {
-    const user = firebase.auth().currentUser;
-    if (!user) {
-        alert("You need to log in first!");
-        return;
-    }
+// ✅ Apply for a hackathon
+// Initialize Firebase authentication
+const auth = firebase.auth();
 
-    const applicationRef = db.collection('applications').doc(user.uid + "_" + hackathonId);
+// Add a global auth state listener at the beginning
+auth.onAuthStateChanged(user => {
+    console.log("Auth state changed:", user ? "User logged in" : "User not logged in");
+    // You can optionally update UI elements here based on login state
+});
+
+// Updated apply function
+function applyForHackathon(hackathonId, hackathonTitle) {
+    // Get the current user
+    const user = auth.currentUser;
     
-    await applicationRef.set({
-        userId: user.uid,
-        userEmail: user.email,
-        userName: user.displayName || "Anonymous",
-        hackathonId: hackathonId,
-        hackathonTitle: hackathonTitle,
-        status: "pending", // Initially set to "pending"
-        appliedAt: firebase.firestore.Timestamp.now()
-    });
-
-    alert("Application submitted! The organizer will review it.");
+    if (!user) {
+        console.log("User not logged in, redirecting to login page");
+        alert("You need to log in first!");
+        // Save the destination in the URL, so after login the user will be directed to apply.html
+        window.location.href = 'login.html?redirect=apply.html?hackathonId=' + hackathonId;
+    } else {
+        console.log("User is logged in, redirecting to application form");
+        // User is logged in, directly go to the application form
+        window.location.href = `apply.html?hackathonId=${hackathonId}`;
+    }
 }
-
         
         </script>
         

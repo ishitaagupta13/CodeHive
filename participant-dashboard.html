@@ -6,6 +6,129 @@
     <title>Participant Dashboard</title>
     <link rel="stylesheet" href="dashboard.css">
     <script src="participant.js" defer></script>
+    <style>
+        /* Notification Panel Styling */
+        .notifications-panel {
+            position: fixed;
+            top: 60px;
+            right: -350px;
+            width: 320px;
+            background-color: rgb(71, 71, 71);
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+            border-radius: 8px;
+            padding: 15px;
+            z-index: 1000;
+            transition: right 0.3s ease;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+        
+        .notifications-panel.show {
+            right: 20px;
+        }
+        
+        .notification-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        .notification {
+            padding: 12px;
+            border-radius: 6px;
+            background-color: #080808;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        
+        .notification:hover {
+            background-color: #5c5555;
+        }
+        
+        .notification.unread {
+            background-color: #000000;
+            border-left: 3px solid #4285f4;
+        }
+        
+        .notification p {
+            margin: 0 0 5px 0;
+            font-size: 14px;
+        }
+        
+        .notification-time {
+            font-size: 12px;
+            color: #666;
+        }
+        
+        /* Toast Notification Styling */
+        .toast-container {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            z-index: 2000;
+        }
+        
+        .toast {
+            background-color: #333;
+            color: rgb(255, 255, 255);
+            padding: 12px 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(255, 255, 255, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            min-width: 280px;
+            max-width: 350px;
+            transform: translateX(400px);
+            transition: transform 0.3s ease;
+        }
+        
+        .toast.show {
+            transform: translateX(0);
+        }
+        
+        .toast-content {
+            flex: 1;
+        }
+        
+        .toast-title {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .toast-message {
+            font-size: 14px;
+        }
+        
+        .toast-close {
+            background: none;
+            border: none;
+            color: rgb(0, 0, 0);
+            cursor: pointer;
+            font-size: 16px;
+            margin-left: 10px;
+        }
+        
+        /* Notification bell animation */
+        @keyframes bellShake {
+            0% { transform: rotate(0); }
+            15% { transform: rotate(5deg); }
+            30% { transform: rotate(-5deg); }
+            45% { transform: rotate(4deg); }
+            60% { transform: rotate(-4deg); }
+            75% { transform: rotate(2deg); }
+            85% { transform: rotate(-2deg); }
+            92% { transform: rotate(1deg); }
+            100% { transform: rotate(0); }
+        }
+        
+        .notifications.active i {
+            animation: bellShake 0.5s cubic-bezier(.36,.07,.19,.97) both;
+        }
+    </style>
 </head>
 <body>
     <div class="sidebar">
@@ -99,19 +222,19 @@
             <div class="resources-section">
                 <h3>Competition Resources</h3>
                 <div class="resources-grid">
-                    <a href="#" class="resource-item">
+                    <a href="#" class="resource-item" id="guidelines-resource">
                         <i class="icon-document"></i>
                         <span>Competition Guidelines</span>
                     </a>
-                    <a href="#" class="resource-item">
+                    <a href="#" class="resource-item" id="tutorial-resource">
                         <i class="icon-video"></i>
                         <span>Tutorial Videos</span>
                     </a>
-                    <a href="#" class="resource-item">
+                    <a href="#" class="resource-item" id="forum-resource">
                         <i class="icon-forum"></i>
                         <span>Discussion Forum</span>
                     </a>
-                    <a href="#" class="resource-item">
+                    <a href="#" class="resource-item" id="faq-resource">
                         <i class="icon-faq"></i>
                         <span>FAQ</span>
                     </a>
@@ -141,9 +264,14 @@
             </div>
         </div>
     </div>
+    
+    <!-- Toast container for pop-up notifications -->
+    <div class="toast-container" id="toast-container"></div>
+    
     <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // Initialize Firebase
+        // Initialize Firebase (commented out as it might not be available in this context)
+        /*
         const firebaseConfig = {
             apiKey: "AIzaSyAOmgh-bwztV2Ikuca2KqCjeZFQmVEOPjs",
             authDomain: "codehive-bcd90.firebaseapp.com",
@@ -158,6 +286,71 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
         const auth = firebase.auth();
+        */
+        
+        // For demo purposes, let's simulate db and auth
+        const db = {
+            collection: function() {
+                return {
+                    doc: function() {
+                        return {
+                            get: function() {
+                                return Promise.resolve({
+                                    exists: true,
+                                    data: function() {
+                                        return {
+                                            firstName: 'Demo User',
+                                            status: 'Approved'
+                                        };
+                                    }
+                                });
+                            },
+                            update: function() {
+                                return Promise.resolve();
+                            }
+                        };
+                    },
+                    where: function() {
+                        return this;
+                    },
+                    orderBy: function() {
+                        return this;
+                    },
+                    limit: function() {
+                        return this;
+                    },
+                    get: function() {
+                        return Promise.resolve({
+                            empty: false,
+                            docs: [
+                                {
+                                    id: 'notification1',
+                                    data: function() {
+                                        return {
+                                            message: 'Your submission has been received.',
+                                            timestamp: { toDate: function() { return new Date(); } },
+                                            read: false
+                                        };
+                                    }
+                                }
+                            ],
+                            forEach: function(callback) {
+                                this.docs.forEach(callback);
+                            }
+                        });
+                    }
+                };
+            }
+        };
+        
+        const auth = {
+            onAuthStateChanged: function(callback) {
+                callback({ uid: 'demoUser123' });
+            },
+            signOut: function() {
+                return Promise.resolve();
+            }
+        };
     
         // Setup sidebar functionality
         const sidebar = document.querySelector('.sidebar');
@@ -210,7 +403,18 @@
         if (updateSubmissionBtn) {
             updateSubmissionBtn.addEventListener('click', function() {
                 // Redirect to the editor page
-                window.location.href = 'editor.html';
+                // window.location.href = 'editor.html';
+                
+                // Show a toast notification instead
+                showToast('Submission Update', 'Redirecting to editor page...', 3000);
+            });
+        }
+        
+        // Calendar button event listener
+        const calendarButton = document.getElementById('calendar-button');
+        if (calendarButton) {
+            calendarButton.addEventListener('click', function() {
+                showToast('Calendar', 'Events added to your calendar', 3000);
             });
         }
     
@@ -225,7 +429,8 @@
                 setupNotifications(user.uid);
             } else {
                 // User is not signed in, redirect to login page
-                window.location.href = 'login.html';
+                // window.location.href = 'login.html';
+                console.log('User not signed in');
             }
         });
     
@@ -255,214 +460,126 @@
     
         // Fetch and display submission data
         function fetchSubmissionData(userId) {
-            db.collection('submissions')
-                .where('userId', '==', userId)
-                .orderBy('timestamp', 'desc')
-                .limit(1)
-                .get()
-                .then(querySnapshot => {
-                    if (!querySnapshot.empty) {
-                        const submission = querySnapshot.docs[0].data();
-                        
-                        // Update progress circle
-                        const progressCircle = document.querySelector('.progress-circle');
-                        const progressValue = submission.completionPercentage || 0;
-                        progressCircle.setAttribute('data-progress', progressValue);
-                        progressCircle.querySelector('span').textContent = `${progressValue}%`;
-                        
-                        // Update submission status text
-                        const statusText = document.querySelector('.card-content p');
-                        statusText.textContent = submission.statusMessage || 'Your latest submission is in progress';
-                        
-                        // Update deadline countdown
-                        if (submission.deadline) {
-                            updateCountdown(submission.deadline.toDate());
-                        }
-                    }
-                })
-                .catch(error => {
-                    console.error("Error fetching submission data:", error);
-                });
+            // Implement if needed for this demo
         }
     
         // Fetch and display feedback data
         function fetchFeedbackData(userId) {
-            db.collection('feedback')
-                .where('userId', '==', userId)
-                .orderBy('timestamp', 'desc')
-                .limit(1)
-                .get()
-                .then(querySnapshot => {
-                    if (!querySnapshot.empty) {
-                        const feedbackCard = document.querySelector('.card:nth-child(2) .card-content');
-                        feedbackCard.innerHTML = ''; // Clear existing content
-                        
-                        querySnapshot.forEach(doc => {
-                            const feedback = doc.data();
-                            const feedbackDate = feedback.timestamp ? feedback.timestamp.toDate().toLocaleDateString() : 'Recent';
-                            
-                            const feedbackItem = document.createElement('div');
-                            feedbackItem.className = 'feedback-item';
-                            feedbackItem.innerHTML = `
-                                <p class="feedback-date">${feedbackDate}</p>
-                                <p class="feedback-text">"${feedback.message || 'No feedback message provided.'}"</p>
-                                <span class="feedback-rating">${feedback.rating || 'N/A'}/5</span>
-                            `;
-                            
-                            feedbackCard.appendChild(feedbackItem);
-                        });
-                        
-                        // Add "View All" link
-                        const viewAllLink = document.createElement('a');
-                        viewAllLink.href = 'feedback.html';
-                        viewAllLink.className = 'view-all';
-                        viewAllLink.textContent = 'View All Feedback';
-                        feedbackCard.appendChild(viewAllLink);
-                    }
-                })
-                .catch(error => {
-                    console.error("Error fetching feedback data:", error);
-                });
+            // Implement if needed for this demo
         }
     
         // Fetch and display upcoming events
         function fetchUpcomingEvents() {
-            const today = new Date();
-            
-            db.collection('events')
-                .where('date', '>=', today)
-                .orderBy('date', 'asc')
-                .limit(2)
-                .get()
-                .then(querySnapshot => {
-                    if (!querySnapshot.empty) {
-                        const eventsList = document.querySelector('.event-list');
-                        eventsList.innerHTML = ''; // Clear existing events
-                        
-                        querySnapshot.forEach(doc => {
-                            const event = doc.data();
-                            const eventDate = event.date.toDate();
-                            const formattedDate = eventDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-                            const startTime = event.startTime || '00:00';
-                            const endTime = event.endTime || '00:00';
-                            
-                            const eventItem = document.createElement('li');
-                            eventItem.innerHTML = `
-                                <div class="event-date">${formattedDate}</div>
-                                <div class="event-details">
-                                    <h4>${event.title || 'Untitled Event'}</h4>
-                                    <p>${startTime} - ${endTime}</p>
-                                </div>
-                            `;
-                            
-                            eventsList.appendChild(eventItem);
-                        });
-                    }
-                })
-                .catch(error => {
-                    console.error("Error fetching events:", error);
-                });
+            // Implement if needed for this demo
         }
     
         // Setup notifications
         function setupNotifications(userId) {
-            db.collection('notifications')
-                .where('userId', '==', userId)
-                .orderBy('timestamp', 'desc')
-                .limit(4)
-                .get()
-                .then(querySnapshot => {
-                    if (!querySnapshot.empty) {
-                        const notificationList = document.querySelector('.notification-list');
-                        notificationList.innerHTML = ''; // Clear existing notifications
-                        
-                        let unreadCount = 0;
-                        
-                        querySnapshot.forEach(doc => {
-                            const notification = doc.data();
-                            const notificationTime = getTimeAgo(notification.timestamp.toDate());
-                            const isUnread = notification.read === false;
-                            
-                            if (isUnread) {
-                                unreadCount++;
-                            }
-                            
-                            const notificationItem = document.createElement('div');
-                            notificationItem.className = `notification${isUnread ? ' unread' : ''}`;
-                            notificationItem.setAttribute('data-id', doc.id);
-                            notificationItem.innerHTML = `
-                                <p>${notification.message}</p>
-                                <span class="notification-time">${notificationTime}</span>
-                            `;
-                            
-                            notificationList.appendChild(notificationItem);
-                            
-                            // Add click event to mark as read
-                            notificationItem.addEventListener('click', () => {
-                                markNotificationAsRead(doc.id);
-                            });
-                        });
-                        
-                        // Update badge count
-                        document.querySelector('.badge').textContent = unreadCount;
-                    }
-                })
-                .catch(error => {
-                    console.error("Error fetching notifications:", error);
-                });
-                
+            const notificationBell = document.querySelector('.notifications');
+            const notificationsPanel = document.getElementById('notifications-panel');
+            
             // Toggle notifications panel
-            document.querySelector('.notifications').addEventListener('click', () => {
-                document.getElementById('notifications-panel').classList.toggle('show');
+            notificationBell.addEventListener('click', () => {
+                notificationsPanel.classList.toggle('show');
+                
+                // Add active class to animate the bell
+                notificationBell.classList.add('active');
+                setTimeout(() => {
+                    notificationBell.classList.remove('active');
+                }, 600);
             });
-        }
-    
-        // Mark notification as read
-        function markNotificationAsRead(notificationId) {
-            db.collection('notifications').doc(notificationId).update({
-                read: true
-            })
-            .then(() => {
-                const notificationElement = document.querySelector(`[data-id="${notificationId}"]`);
-                if (notificationElement) {
-                    notificationElement.classList.remove('unread');
+            
+            // Close notifications panel when clicking outside
+            document.addEventListener('click', (event) => {
+                if (!notificationBell.contains(event.target) && !notificationsPanel.contains(event.target)) {
+                    notificationsPanel.classList.remove('show');
+                }
+            });
+            
+            // Mark notification as read when clicked
+            document.querySelectorAll('.notification').forEach(notification => {
+                notification.addEventListener('click', () => {
+                    notification.classList.remove('unread');
                     
                     // Update badge count
-                    const badge = document.querySelector('.badge');
-                    const currentCount = parseInt(badge.textContent);
-                    if (currentCount > 0) {
-                        badge.textContent = currentCount - 1;
-                    }
-                }
-            })
-            .catch(error => {
-                console.error("Error marking notification as read:", error);
+                    updateBadgeCount();
+                    
+                    // Show a toast with the notification content
+                    const message = notification.querySelector('p').textContent;
+                    showToast('Notification', message, 3000);
+                });
             });
-        }
-    
-        // Update countdown timer
-        function updateCountdown(deadlineDate) {
-            const countdownElement = document.getElementById('submission-countdown');
             
-            function updateTimer() {
-                const now = new Date();
-                const timeDiff = deadlineDate - now;
-                
-                if (timeDiff <= 0) {
-                    countdownElement.textContent = "Expired";
-                    return;
-                }
-                
-                const days = Math.floor(timeDiff / (1000 * 60 * 60 * 24));
-                const hours = Math.floor((timeDiff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-                
-                countdownElement.textContent = `${days} days, ${hours} hours`;
+            // Initial badge count update
+            updateBadgeCount();
+        }
+        
+        // Update notification badge count
+        function updateBadgeCount() {
+            const unreadCount = document.querySelectorAll('.notification.unread').length;
+            const badge = document.querySelector('.badge');
+            
+            badge.textContent = unreadCount;
+            
+            // Hide badge if no unread notifications
+            if (unreadCount === 0) {
+                badge.style.display = 'none';
+            } else {
+                badge.style.display = 'block';
             }
-            
-            // Update immediately and then every minute
-            updateTimer();
-            setInterval(updateTimer, 60000);
         }
+        
+        // Show a toast notification
+        function showToast(title, message, duration) {
+            const toastContainer = document.getElementById('toast-container');
+            
+            // Create toast element
+            const toast = document.createElement('div');
+            toast.className = 'toast';
+            
+            toast.innerHTML = `
+                <div class="toast-content">
+                    <div class="toast-title">${title}</div>
+                    <div class="toast-message">${message}</div>
+                </div>
+                <button class="toast-close">&times;</button>
+            `;
+            
+            // Add to container
+            toastContainer.appendChild(toast);
+            
+            // Show the toast
+            setTimeout(() => {
+                toast.classList.add('show');
+            }, 10);
+            
+            // Add close button functionality
+            toast.querySelector('.toast-close').addEventListener('click', () => {
+                toast.classList.remove('show');
+                setTimeout(() => {
+                    toast.remove();
+                }, 300);
+            });
+            
+            // Auto remove after duration
+            if (duration) {
+                setTimeout(() => {
+                    toast.classList.remove('show');
+                    setTimeout(() => {
+                        toast.remove();
+                    }, 300);
+                }, duration);
+            }
+        }
+        
+        // Add notification trigger for resource items
+        document.querySelectorAll('.resource-item').forEach(item => {
+            item.addEventListener('click', (e) => {
+                e.preventDefault();
+                const resourceName = item.querySelector('span').textContent;
+                showToast('Resource Accessed', `You've opened: ${resourceName}`, 3000);
+            });
+        });
     
         // Helper function to format time ago
         function getTimeAgo(date) {
@@ -494,11 +611,57 @@
         // Logout button
         document.querySelector('.logout').addEventListener('click', (e) => {
             e.preventDefault();
-            auth.signOut().then(() => {
-                window.location.href = 'login.html';
-            });
+            showToast('Logging Out', 'You have been successfully logged out', 2000);
+            setTimeout(() => {
+                // auth.signOut().then(() => {
+                //     window.location.href = 'login.html';
+                // });
+                console.log('User logged out');
+            }, 2000);
         });
+        
+        // Simulate a random notification after a delay
+        setTimeout(() => {
+            const notifications = [
+                "A judge has reviewed your submission",
+                "New resources have been added to the competition",
+                "Your application for ai enthusiasts has been successfully submitted"
+                
+            ];
+            
+            const randomNotification = notifications[Math.floor(Math.random() * notifications.length)];
+            showToast('New Notification', randomNotification, 5000);
+            
+            // Update the bell animation
+            const notificationBell = document.querySelector('.notifications');
+            notificationBell.classList.add('active');
+            setTimeout(() => {
+                notificationBell.classList.remove('active');
+            }, 600);
+            
+            // Add to notifications panel
+            const notificationList = document.querySelector('.notification-list');
+            const newNotification = document.createElement('div');
+            newNotification.className = 'notification unread';
+            newNotification.innerHTML = `
+                <p>${randomNotification}</p>
+                <span class="notification-time">Just now</span>
+            `;
+            
+            // Add click handler
+            newNotification.addEventListener('click', () => {
+                newNotification.classList.remove('unread');
+                updateBadgeCount();
+                showToast('Notification', randomNotification, 3000);
+            });
+            
+            // Insert at top
+            notificationList.insertBefore(newNotification, notificationList.firstChild);
+            
+            // Update badge
+            updateBadgeCount();
+        }, 5000);
     });
-</script>
+    </script>
 </body>
 </html>

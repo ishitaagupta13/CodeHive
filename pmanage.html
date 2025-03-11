@@ -1,0 +1,1077 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Participants Management</title>
+    <link rel="stylesheet" href="dashboard.css">
+    <script src="firebase-config.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+</head>
+<body>
+    <div class="sidebar">
+        <div class="logo">
+            <h1>CompetitionHub</h1>
+        </div>
+        <nav>
+            <ul>
+                <li><a href="organizer-dashboard.html"><i class="icon-dashboard"></i> Dashboard</a></li>
+                <li><a href="addhack.html"><i class="icon-participants"></i> Add A Hackathon</a></li>
+                <li class="active"><a href="participants.html"><i class="icon-participants"></i> Participants</a></li>
+                <li><a href="#"><i class="icon-judges"></i> Judges</a></li>
+                <li><a href="#"><i class="icon-schedule"></i> Schedule</a></li>
+                <li><a href="#"><i class="icon-announcements"></i> Announcements</a></li>
+                <li><a href="#"><i class="icon-settings"></i> Settings</a></li>
+            </ul>
+        </nav>
+        <div class="profile">
+            <div class="avatar"></div>
+            <span><a href="#">Organizer Profile</a></span>
+            <a href="#" class="logout">Log Out</a>
+        </div>
+    </div>
+
+    <main>
+        <header>
+            <div class="search-bar">
+                <input type="text" id="participant-search" placeholder="Search participants...">
+                <button type="submit"><i class="icon-search"></i></button>
+            </div>
+            <div class="notifications">
+                <i class="icon-bell"></i>
+                <span class="badge">5</span>
+            </div>
+        </header>
+
+        <div class="content">
+            <h2>Participant Management</h2>
+
+            <div class="tab-container">
+                <!-- <div class="tabs">
+                   <button class="tab-button active" data-tab="pending">Pending Applications</button>
+                    <button class="tab-button" data-tab="approved">Approved Participants</button>
+                    <button class="tab-button" data-tab="rejected">Rejected Applications</button>
+                </div> -->
+
+                <div class="tab-content active" id="pending-tab">
+                    <div class="card">
+                        <h3>Pending Applications</h3>
+                        <div class="card-content">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Name</th>
+                                        <th>Email</th>
+                                        <th>Hackathon</th>
+                                        <th>Applied On</th>
+                                        <th>Profile</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="pending-applications">
+                                    <tr>
+                                        <td colspan="6" class="text-center">Loading applications...</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <div class="pagination" id="pending-pagination">
+                                <!-- Pagination will be added dynamically -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="tab-content" id="approved-tab">
+                    <div class="card">
+                        <h3>Approved Participants</h3>
+                        <div class="card-content">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Name</th>
+                                        <th>Email</th>
+                                        <th>Hackathon</th>
+                                        <th>Approved On</th>
+                                        <th>Profile</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="approved-participants">
+                                    <tr>
+                                        <td colspan="6" class="text-center">Loading participants...</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <div class="pagination" id="approved-pagination">
+                                <!-- Pagination will be added dynamically -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="tab-content" id="rejected-tab">
+                    <div class="card">
+                        <h3>Rejected Applications</h3>
+                        <div class="card-content">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Name</th>
+                                        <th>Email</th>
+                                        <th>Hackathon</th>
+                                        <th>Rejected On</th>
+                                        <th>Profile</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="rejected-applications">
+                                    <tr>
+                                        <td colspan="6" class="text-center">Loading applications...</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <div class="pagination" id="rejected-pagination">
+                                <!-- Pagination will be added dynamically -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Participant Profile Modal -->
+    <div class="modal" id="profile-modal">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <h3>Participant Profile</h3>
+            <div id="profile-content">
+                <!-- Profile content will be populated dynamically -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Email Template Modal -->
+    <div class="modal" id="email-modal">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <h3>Customize Email</h3>
+            <form id="email-form">
+                <div class="form-group">
+                    <label for="email-recipient">To:</label>
+                    <input type="email" id="email-recipient" readonly>
+                </div>
+                <div class="form-group">
+                    <label for="email-subject">Subject:</label>
+                    <input type="text" id="email-subject" value="Your Hackathon Application Status">
+                </div>
+                <div class="form-group">
+                    <label for="email-message">Message:</label>
+                    <textarea id="email-message" rows="8"></textarea>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn secondary" id="cancel-email">Cancel</button>
+                    <button type="submit" class="btn primary">Send Email</button>
+                </div>
+                <input type="hidden" id="email-application-id">
+                <input type="hidden" id="email-action">
+            </form>
+        </div>
+    </div>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
+    <script src="firebase-config.js"></script>
+    
+    <!-- Other scripts and styles -->
+    <!-- <link rel="stylesheet" href="dashboard.css"> -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Create and append tab buttons since they're missing in the HTML
+            const tabContainer = document.querySelector('.tabs');
+            if (tabContainer && tabContainer.children.length === 0) {
+                const tabs = [
+                    { id: 'pending', text: 'Pending Applications' },
+                    { id: 'approved', text: 'Approved Participants' },
+                    { id: 'rejected', text: 'Rejected Applications' }
+                ];
+                
+                tabs.forEach((tab, index) => {
+                    const button = document.createElement('button');
+                    button.className = 'tab-button' + (index === 0 ? ' active' : '');
+                    button.setAttribute('data-tab', tab.id);
+                    button.textContent = tab.text;
+                    tabContainer.appendChild(button);
+                });
+            }
+        
+            // Initialize tabs
+            const tabButtons = document.querySelectorAll('.tab-button');
+            const tabContents = document.querySelectorAll('.tab-content');
+        
+            tabButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    const tabName = button.getAttribute('data-tab');
+                    
+                    // Deactivate all tabs
+                    tabButtons.forEach(btn => btn.classList.remove('active'));
+                    tabContents.forEach(content => content.classList.remove('active'));
+                    
+                    // Activate selected tab
+                    button.classList.add('active');
+                    document.getElementById(`${tabName}-tab`).classList.add('active');
+                    
+                    // Load data for the selected tab
+                    displayApplications(tabName, 1);
+                });
+            });
+        
+            // Initialize modals
+            const modals = document.querySelectorAll('.modal');
+            const closeButtons = document.querySelectorAll('.close-modal');
+            
+            closeButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    modals.forEach(modal => {
+                        modal.style.display = 'none';
+                    });
+                });
+            });
+        
+            // Close modal when clicking outside of modal content
+            window.addEventListener('click', (event) => {
+                modals.forEach(modal => {
+                    if (event.target === modal) {
+                        modal.style.display = 'none';
+                    }
+                });
+            });
+        
+            // Cancel email button
+            document.getElementById('cancel-email').addEventListener('click', () => {
+                document.getElementById('email-modal').style.display = 'none';
+            });
+        
+            // Email form submission
+            document.getElementById('email-form').addEventListener('submit', (event) => {
+                event.preventDefault();
+                
+                const applicationId = document.getElementById('email-application-id').value;
+                const action = document.getElementById('email-action').value;
+                const email = document.getElementById('email-recipient').value;
+                const subject = document.getElementById('email-subject').value;
+                const message = document.getElementById('email-message').value;
+                
+                sendApplicationEmail(applicationId, email, subject, message, action);
+            });
+        
+            // Load initial data for all tabs
+            loadSampleData('pending');
+            loadSampleData('approved');
+            loadSampleData('rejected');
+            
+            // Activate the first tab
+            if (tabButtons.length > 0) {
+                tabButtons[0].click();
+            }
+        
+            // Initialize search functionality
+            document.getElementById('participant-search').addEventListener('input', (event) => {
+                const searchTerm = event.target.value.toLowerCase();
+                const activeTab = document.querySelector('.tab-button.active')?.getAttribute('data-tab') || 'pending';
+                
+                filterApplications(searchTerm, activeTab);
+            });
+        });
+        
+        // Global variables for pagination
+        let currentPage = 1;
+        let itemsPerPage = 10;
+        let allApplications = {
+            pending: [],
+            approved: [],
+            rejected: []
+        };
+        
+        // Sample data for each category
+        const sampleApplications = {
+            pending: [
+                {
+                    id: 'p1',
+                    userName: 'Kanushka',
+                    userEmail: 'joshikanushka1105@gmail.com',
+                    hackathonTitle: 'AI Innovation Challenge',
+                    appliedAt: new Date('2025-02-25T14:14:40'),
+                    skills: 'Python, web3',
+                    projectIdea: 'An AI-driven solution for optimizing energy consumption in smart homes',
+                    experience: 'NA'
+                },
+                {
+                    id: 'p2',
+                    userName: 'demo',
+                    userEmail: 'btbtc23115_kanushka@banasthali.in',
+                    hackathonTitle: 'AI Innovation Challenge',
+                    appliedAt: new Date('2025-03-01T09:45:00'),
+                    skills: 'JavaScript, HTML, CSS',
+                    projectIdea: 'Hackathon',
+                    experience: 'Intermediate'
+                },
+                {
+                    id: 'p3',
+                    userName: 'ishita',
+                    userEmail: 'ishita@example.com',
+                    hackathonTitle: 'AI Innovation Challenge',
+                    appliedAt: new Date('2025-03-02T16:20:00'),
+                    skills: 'python, java, web3',
+                    projectIdea: 'na',
+                    experience: 'pro'
+                },
+                {
+                    id: 'p4',
+                    userName: 'kanu',
+                    userEmail: 'kanu@example.com',
+                    hackathonTitle: 'AI Innovation Challenge',
+                    appliedAt: new Date('2025-03-02T16:20:00'),
+                    skills: 'python, java, web3',
+                    projectIdea: 'na',
+                    experience: 'pro'
+                },
+                {
+                    id: 'p5',
+                    userName: 'ishika',
+                    userEmail: 'ishika@example.com',
+                    hackathonTitle: 'AI Innovation Challenge',
+                    appliedAt: new Date('2025-03-02T16:20:00'),
+                    skills: 'python, java, web3',
+                    projectIdea: 'na',
+                    experience: 'beginner'
+                }
+            ],
+            approved: [
+                {
+                    id: 'a1',
+                    userName: 'rahul kumar',
+                    userEmail: 'rahul@example.com',
+                    hackathonTitle: 'AI Innovation Challenge',
+                    appliedAt: new Date('2025-02-15T10:30:00'),
+                    approvedAt: new Date('2025-02-17T14:20:00'),
+                    skills: 'Python, TensorFlow, Data Science',
+                    projectIdea: 'AI-powered crop disease detection system for farmers',
+                    experience: 'Senior Data Scientist, 2 previous hackathon wins'
+                },
+                {
+                    id: 'a2',
+                    userName: 'jaya',
+                    userEmail: 'jaya@example.com',
+                    hackathonTitle: 'gaming',
+                    appliedAt: new Date('2025-02-18T08:55:00'),
+                    approvedAt: new Date('2025-02-20T11:30:00'),
+                    skills: 'React,nodejs',
+                    projectIdea: 'Carbon footprint ',
+                    experience: 'Full-stack developer, environmental activist'
+                },
+                {
+                    id: 'a3',
+                    userName: 'Olivia Brown',
+                    userEmail: 'olivia.b@example.com',
+                    hackathonTitle: 'EdTech Innovators',
+                    appliedAt: new Date('2025-02-20T15:45:00'),
+                    approvedAt: new Date('2025-02-22T09:15:00'),
+                    skills: 'Unity, C#, Instructional Design',
+                    projectIdea: 'VR application for interactive science education',
+                    experience: 'Game developer, former teacher'
+                },
+                {
+                    id: 'a4',
+                    userName: 'David Kumar',
+                    userEmail: 'david.k@example.com',
+                    hackathonTitle: 'Web3 Hackathon',
+                    appliedAt: new Date('2025-02-22T13:20:00'),
+                    approvedAt: new Date('2025-02-24T10:05:00'),
+                    skills: 'JavaScript, React, Blockchain Development',
+                    projectIdea: 'Decentralized voting platform for community governance',
+                    experience: 'Blockchain developer, smart contract auditor'
+                },
+                {
+                    id: 'a5',
+                    userName: 'Sofia Martinez',
+                    userEmail: 'sofia.m@example.com',
+                    hackathonTitle: 'AI Innovation Challenge',
+                    appliedAt: new Date('2025-02-24T11:10:00'),
+                    approvedAt: new Date('2025-02-26T14:25:00'),
+                    skills: 'Python, Machine Learning, Data Science',
+                    projectIdea: 'AI-powered content moderation system',
+                    experience: 'Data scientist at a social media company'
+                }
+            ],
+            rejected: [
+                {
+                    id: 'r1',
+                    userName: 'Ryan Thompson',
+                    userEmail: 'ryan.t@example.com',
+                    hackathonTitle: 'Cybersecurity Challenge',
+                    appliedAt: new Date('2025-02-10T16:30:00'),
+                    rejectedAt: new Date('2025-02-14T09:20:00'),
+                    skills: 'Network Security, Python, Penetration Testing',
+                    projectIdea: 'Automated vulnerability scanner for small businesses',
+                    experience: 'Security enthusiast, self-taught programmer'
+                },
+                {
+                    id: 'r2',
+                    userName: 'Priya Patel',
+                    userEmail: 'priya.p@example.com',
+                    hackathonTitle: 'Health Innovation Challenge',
+                    appliedAt: new Date('2025-02-12T13:40:00'),
+                    rejectedAt: new Date('2025-02-15T11:55:00'),
+                    skills: 'Flutter, Firebase, UI Design',
+                    projectIdea: 'Medication reminder app for elderly patients',
+                    experience: 'Junior mobile developer, first hackathon'
+                },
+                {
+                    id: 'r3',
+                    userName: 'Thomas Lee',
+                    userEmail: 'thomas.l@example.com',
+                    hackathonTitle: 'AI Innovation Challenge',
+                    appliedAt: new Date('2025-02-14T10:15:00'),
+                    rejectedAt: new Date('2025-02-16T14:30:00'),
+                    skills: 'JavaScript, Basic ML, Web Development',
+                    projectIdea: 'AI chatbot for customer service',
+                    experience: 'Web developer transitioning to AI'
+                },
+                {
+                    id: 'r4',
+                    userName: 'Jasmine Williams',
+                    userEmail: 'jasmine.w@example.com',
+                    hackathonTitle: 'EdTech Innovators',
+                    appliedAt: new Date('2025-02-16T09:50:00'),
+                    rejectedAt: new Date('2025-02-18T15:40:00'),
+                    skills: 'WordPress, PHP, Content Creation',
+                    projectIdea: 'Online platform for peer-to-peer tutoring',
+                    experience: 'Content creator, education blogger'
+                },
+                {
+                    id: 'r5',
+                    userName: 'Kai Nakamura',
+                    userEmail: 'kai.n@example.com',
+                    hackathonTitle: 'FinTech Revolution',
+                    appliedAt: new Date('2025-02-18T14:05:00'),
+                    rejectedAt: new Date('2025-02-20T10:15:00'),
+                    skills: 'Python, Data Analysis, Basic Finance',
+                    projectIdea: 'Stock market prediction tool using historical data',
+                    experience: 'CS student, finance hobbyist'
+                }
+            ]
+        };
+        
+        // Function to load sample data
+        function loadSampleData(status) {
+            allApplications[status] = [...sampleApplications[status]]; // Create a copy to avoid modifying the original
+            displayApplications(status, 1);
+            setupPagination(status);
+        }
+        
+        // Function to display applications for a specific page
+        function displayApplications(status, page) {
+            currentPage = page;
+            const tableBody = document.getElementById(`${status === 'approved' ? 'approved-participants' : status + '-applications'}`);
+            tableBody.innerHTML = '';
+            
+            const startIndex = (page - 1) * itemsPerPage;
+            const endIndex = Math.min(startIndex + itemsPerPage, allApplications[status].length);
+            
+            if (allApplications[status].length === 0) {
+                tableBody.innerHTML = `<tr><td colspan="6" class="text-center">No ${status} applications found</td></tr>`;
+                return;
+            }
+            
+            for (let i = startIndex; i < endIndex; i++) {
+                const app = allApplications[status][i];
+                const row = document.createElement('tr');
+                
+                // Format date
+                const dateField = status === 'pending' ? 'appliedAt' : 
+                                 status === 'approved' ? 'approvedAt' : 'rejectedAt';
+                const dateDisplay = app[dateField] ? app[dateField].toLocaleDateString() : app.appliedAt.toLocaleDateString();
+                
+                row.innerHTML = `
+                    <td>${app.userName || 'N/A'}</td>
+                    <td>${app.userEmail || 'N/A'}</td>
+                    <td>${app.hackathonTitle || 'N/A'}</td>
+                    <td>${dateDisplay}</td>
+                    <td><button class="btn-view" data-id="${app.id}">View Profile</button></td>
+                    <td>
+                        ${status === 'pending' ? `
+                            <button class="btn-approve" data-id="${app.id}" data-email="${app.userEmail}">Approve</button>
+                            <button class="btn-reject" data-id="${app.id}" data-email="${app.userEmail}">Reject</button>
+                        ` : status === 'rejected' ? `
+                            <button class="btn-approve" data-id="${app.id}" data-email="${app.userEmail}">Approve</button>
+                        ` : `
+                            <button class="btn-message" data-id="${app.id}" data-email="${app.userEmail}">Message</button>
+                        `}
+                    </td>
+                `;
+                
+                tableBody.appendChild(row);
+            }
+            
+            // Add event listeners to buttons
+            addButtonEventListeners(status);
+        }
+        
+        // Function to set up pagination
+        function setupPagination(status) {
+            const paginationContainer = document.getElementById(`${status}-pagination`);
+            paginationContainer.innerHTML = '';
+            
+            const totalPages = Math.ceil(allApplications[status].length / itemsPerPage);
+            
+            if (totalPages <= 1) {
+                return;
+            }
+            
+            // Previous button
+            const prevLink = document.createElement('a');
+            prevLink.href = '#';
+            prevLink.className = 'page-link';
+            prevLink.textContent = 'Prev';
+            prevLink.addEventListener('click', (e) => {
+                e.preventDefault();
+                if (currentPage > 1) {
+                    displayApplications(status, currentPage - 1);
+                    updatePaginationActive(status);
+                }
+            });
+            paginationContainer.appendChild(prevLink);
+            
+            // Page numbers
+            for (let i = 1; i <= totalPages; i++) {
+                const pageLink = document.createElement('a');
+                pageLink.href = '#';
+                pageLink.className = 'page-link' + (i === currentPage ? ' active' : '');
+                pageLink.textContent = i;
+                pageLink.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    displayApplications(status, i);
+                    updatePaginationActive(status);
+                });
+                paginationContainer.appendChild(pageLink);
+            }
+            
+            // Next button
+            const nextLink = document.createElement('a');
+            nextLink.href = '#';
+            nextLink.className = 'page-link';
+            nextLink.textContent = 'Next';
+            nextLink.addEventListener('click', (e) => {
+                e.preventDefault();
+                if (currentPage < totalPages) {
+                    displayApplications(status, currentPage + 1);
+                    updatePaginationActive(status);
+                }
+            });
+            paginationContainer.appendChild(nextLink);
+        }
+        
+        // Update active pagination link
+        function updatePaginationActive(status) {
+            const paginationLinks = document.querySelectorAll(`#${status}-pagination .page-link`);
+            
+            // Skip first (prev) and last (next) links
+            for (let i = 1; i < paginationLinks.length - 1; i++) {
+                if (i === currentPage) {
+                    paginationLinks[i].classList.add('active');
+                } else {
+                    paginationLinks[i].classList.remove('active');
+                }
+            }
+        }
+        
+        // Add event listeners to buttons in the table
+        function addButtonEventListeners(status) {
+            // View profile buttons
+            document.querySelectorAll('.btn-view').forEach(button => {
+                button.addEventListener('click', () => {
+                    const applicationId = button.getAttribute('data-id');
+                    showParticipantProfile(applicationId);
+                });
+            });
+            
+            // Approve buttons
+            document.querySelectorAll('.btn-approve').forEach(button => {
+                button.addEventListener('click', () => {
+                    const applicationId = button.getAttribute('data-id');
+                    const userEmail = button.getAttribute('data-email');
+                    showEmailModal(applicationId, userEmail, 'approve');
+                });
+            });
+            
+            // Reject buttons
+            document.querySelectorAll('.btn-reject').forEach(button => {
+                button.addEventListener('click', () => {
+                    const applicationId = button.getAttribute('data-id');
+                    const userEmail = button.getAttribute('data-email');
+                    showEmailModal(applicationId, userEmail, 'reject');
+                });
+            });
+            
+            // Message buttons
+            document.querySelectorAll('.btn-message').forEach(button => {
+                button.addEventListener('click', () => {
+                    const applicationId = button.getAttribute('data-id');
+                    const userEmail = button.getAttribute('data-email');
+                    showEmailModal(applicationId, userEmail, 'message');
+                });
+            });
+        }
+        
+        // Show participant profile
+        function showParticipantProfile(applicationId) {
+            // Find the application in our data
+            let application = null;
+            let status = '';
+            
+            for (const [appStatus, apps] of Object.entries(allApplications)) {
+                const found = apps.find(app => app.id === applicationId);
+                if (found) {
+                    application = found;
+                    status = appStatus;
+                    break;
+                }
+            }
+            
+            if (!application) {
+                alert("Participant profile not found");
+                return;
+            }
+            
+            const profileContent = document.getElementById('profile-content');
+            
+            // Format profile data
+            profileContent.innerHTML = `
+                <div class="profile-details">
+                    <div class="profile-section">
+                        <h4>Personal Information</h4>
+                        <p><strong>Name:</strong> ${application.userName || 'N/A'}</p>
+                        <p><strong>Email:</strong> ${application.userEmail || 'N/A'}</p>
+                        <p><strong>Status:</strong> <span class="status-badge ${status}">${status.charAt(0).toUpperCase() + status.slice(1)}</span></p>
+                    </div>
+                    
+                    <div class="profile-section">
+                        <h4>Hackathon Details</h4>
+                        <p><strong>Hackathon:</strong> ${application.hackathonTitle || 'N/A'}</p>
+                        <p><strong>Applied On:</strong> ${application.appliedAt ? application.appliedAt.toLocaleString() : 'N/A'}</p>
+                        ${application.approvedAt ? `<p><strong>Approved On:</strong> ${application.approvedAt.toLocaleString()}</p>` : ''}
+                        ${application.rejectedAt ? `<p><strong>Rejected On:</strong> ${application.rejectedAt.toLocaleString()}</p>` : ''}
+                    </div>
+                    
+                    ${application.skills ? `
+                    <div class="profile-section">
+                        <h4>Skills</h4>
+                        <p>${application.skills}</p>
+                    </div>
+                    ` : ''}
+                    
+                    ${application.projectIdea ? `
+                    <div class="profile-section">
+                        <h4>Project Idea</h4>
+                        <p>${application.projectIdea}</p>
+                    </div>
+                    ` : ''}
+                    
+                    ${application.experience ? `
+                    <div class="profile-section">
+                        <h4>Previous Experience</h4>
+                        <p>${application.experience}</p>
+                    </div>
+                    ` : ''}
+                </div>
+                
+                <div class="profile-actions">
+                    ${status === 'pending' ? `
+                        <button class="btn primary" onclick="showEmailModal('${application.id}', '${application.userEmail}', 'approve')">Approve</button>
+                        <button class="btn secondary" onclick="showEmailModal('${application.id}', '${application.userEmail}', 'reject')">Reject</button>
+                    ` : status === 'rejected' ? `
+                        <button class="btn primary" onclick="showEmailModal('${application.id}', '${application.userEmail}', 'approve')">Approve</button>
+                    ` : `
+                        <button class="btn primary" onclick="showEmailModal('${application.id}', '${application.userEmail}', 'message')">Send Message</button>
+                    `}
+                </div>
+            `;
+            
+            // Show the modal
+            document.getElementById('profile-modal').style.display = 'block';
+        }
+        
+        // Show email modal with appropriate template
+        function showEmailModal(applicationId, email, action) {
+            const emailRecipient = document.getElementById('email-recipient');
+            const emailSubject = document.getElementById('email-subject');
+            const emailMessage = document.getElementById('email-message');
+            const emailAppId = document.getElementById('email-application-id');
+            const emailAction = document.getElementById('email-action');
+            
+            emailRecipient.value = email;
+            emailAppId.value = applicationId;
+            emailAction.value = action;
+            
+            // Set appropriate templates based on action
+            if (action === 'approve') {
+                emailSubject.value = "Your Hackathon Application Has Been Approved";
+                emailMessage.value = `Dear Participant,
+        
+        Congratulations! Your application for the hackathon has been approved.
+        
+        You now have access to the participant dashboard where you can view competition details, submit your project, and communicate with other participants.
+        
+        Please log in to your account to get started.
+        
+        Best regards,
+        The CompetitionHub Team`;
+            } else if (action === 'reject') {
+                emailSubject.value = "Update on Your Hackathon Application";
+                emailMessage.value = `Dear Participant,
+        
+        Thank you for your interest in our hackathon.
+        
+        After careful review of all applications, we regret to inform you that we are unable to accept your application at this time.
+        
+        We encourage you to apply for future events.
+        
+        Best regards,
+        The CompetitionHub Team`;
+            } else {
+                emailSubject.value = "Important Message About Your Hackathon";
+                emailMessage.value = `Dear Participant,
+        
+        [Your message here]
+        
+        Best regards,
+        The CompetitionHub Team`;
+            }
+            
+            // Show the modal
+            document.getElementById('email-modal').style.display = 'block';
+        }
+        
+        // Process application and send email
+        function sendApplicationEmail(applicationId, email, subject, message, action) {
+            try {
+                // Find the application in our data
+                let application = null;
+                let currentStatus = '';
+                let appIndex = -1;
+                
+                for (const [status, apps] of Object.entries(allApplications)) {
+                    appIndex = apps.findIndex(app => app.id === applicationId);
+                    if (appIndex >= 0) {
+                        application = {...apps[appIndex]}; // Create a copy
+                        currentStatus = status;
+                        
+                        // Remove from current status array
+                        allApplications[status].splice(appIndex, 1);
+                        break;
+                    }
+                }
+                
+                if (!application) {
+                    throw new Error("Application not found");
+                }
+                
+                // Update application status
+                if (action === 'approve') {
+                    application.approvedAt = new Date();
+                    if (application.rejectedAt) delete application.rejectedAt;
+                    
+                    // Add to approved array
+                    allApplications.approved.push(application);
+                } else if (action === 'reject') {
+                    application.rejectedAt = new Date();
+                    if (application.approvedAt) delete application.approvedAt;
+                    
+                    // Add to rejected array
+                    allApplications.rejected.push(application);
+                } else {
+                    // If just sending a message, put back in original array
+                    allApplications[currentStatus].push(application);
+                }
+                
+                // Log email info (since we can't actually send emails in this demo)
+                console.log(`Email sent to ${email}:`);
+                console.log(`Subject: ${subject}`);
+                console.log(`Message: ${message}`);
+                
+                // Close the modal
+                document.getElementById('email-modal').style.display = 'none';
+                
+                // Show success message
+                let actionVerb = action === 'approve' ? 'approved' : 
+                                action === 'reject' ? 'rejected' : 'sent';
+                alert(`Application ${actionVerb} and email notification sent.`);
+                
+                // Refresh data for all tabs
+                setupPagination('pending');
+                setupPagination('approved');
+                setupPagination('rejected');
+                
+                // Refresh display for current tab
+                const activeTab = document.querySelector('.tab-button.active')?.getAttribute('data-tab') || 'pending';
+                displayApplications(activeTab, 1);
+                
+                // If approving or rejecting, switch to that tab
+                if (action === 'approve' && currentStatus !== 'approved') {
+                    const approvedTab = document.querySelector('.tab-button[data-tab="approved"]');
+                    if (approvedTab) approvedTab.click();
+                } else if (action === 'reject' && currentStatus !== 'rejected') {
+                    const rejectedTab = document.querySelector('.tab-button[data-tab="rejected"]');
+                    if (rejectedTab) rejectedTab.click();
+                }
+                
+            } catch (error) {
+                console.error("Error processing application:", error);
+                alert("Error processing application: " + error.message);
+            }
+        }
+        // Function to directly move a participant to approved without email
+// Function to approve a participant and move them to the approved list
+function directApproveParticipant(applicationId) {
+    try {
+        // Find the application in our data
+        let application = null;
+        let currentStatus = '';
+        let appIndex = -1;
+        
+        for (const [status, apps] of Object.entries(allApplications)) {
+            appIndex = apps.findIndex(app => app.id === applicationId);
+            if (appIndex >= 0) {
+                application = { ...apps[appIndex] }; // Create a copy
+                currentStatus = status;
+                
+                // Remove from current status array
+                allApplications[status].splice(appIndex, 1);
+                break;
+            }
+        }
+        
+        if (!application) {
+            throw new Error("Application not found");
+        }
+        
+        // Update application status
+        application.approvedAt = new Date();
+        if (application.rejectedAt) delete application.rejectedAt;
+        
+        // Add to approved array
+        allApplications.approved.push(application);
+        
+        // Refresh data for all tabs
+        displayApplications('pending', 1);
+        displayApplications('approved', 1);
+        displayApplications('rejected', 1);
+        
+        // Switch to the approved tab
+        const approvedTab = document.querySelector('.tab-button[data-tab="approved"]');
+        if (approvedTab) approvedTab.click();
+        
+    } catch (error) {
+        console.error("Error processing application:", error);
+        alert("Error processing application: " + error.message);
+    }
+}
+
+// Function to update all approve buttons to use direct approval
+function updateApproveButtons() {
+    document.querySelectorAll('.btn-approve').forEach(button => {
+        button.removeEventListener('click', button.clickHandler);
+        button.clickHandler = () => {
+            const applicationId = button.getAttribute('data-id');
+            directApproveParticipant(applicationId);
+        };
+        button.addEventListener('click', button.clickHandler);
+    });
+}
+
+// Attach event listeners when DOM is loaded
+document.addEventListener('DOMContentLoaded', function() {
+    updateApproveButtons();
+});
+// Also update the addButtonEventListeners function
+function addButtonEventListeners(status) {
+    // View profile buttons
+    document.querySelectorAll('.btn-view').forEach(button => {
+        button.addEventListener('click', () => {
+            const applicationId = button.getAttribute('data-id');
+            window.location.href = `http://127.0.0.1:5501/profile.html?id=${applicationId}`;
+            showParticipantProfile(applicationId);
+        });
+    });
+    
+    // Approve buttons - direct approval without email
+    document.querySelectorAll('.btn-approve').forEach(button => {
+        button.clickHandler = () => {
+            const applicationId = button.getAttribute('data-id');
+            directApproveParticipant(applicationId);
+        };
+        button.addEventListener('click', button.clickHandler);
+    });
+    
+    // Reject buttons - keep the original functionality or modify similarly
+    document.querySelectorAll('.btn-reject').forEach(button => {
+        button.addEventListener('click', () => {
+            const applicationId = button.getAttribute('data-id');
+            const userEmail = button.getAttribute('data-email');
+            showEmailModal(applicationId, userEmail, 'reject');
+        });
+    });
+    
+    // Message buttons - keep the original functionality
+    document.querySelectorAll('.btn-message').forEach(button => {
+        button.addEventListener('click', () => {
+            const applicationId = button.getAttribute('data-id');
+            const userEmail = button.getAttribute('data-email');
+            showEmailModal(applicationId, userEmail, 'message');
+        });
+    });
+}
+
+// Update the profile view to use direct approval as well
+function showParticipantProfile(applicationId) {
+    // Find the application in our data
+    let application = null;
+    let status = '';
+    
+    for (const [appStatus, apps] of Object.entries(allApplications)) {
+        const found = apps.find(app => app.id === applicationId);
+        if (found) {
+            application = found;
+            status = appStatus;
+            break;
+        }
+    }
+    
+    if (!application) {
+        alert("Participant profile not found");
+        return;
+    }
+    
+    const profileContent = document.getElementById('profile-content');
+    
+    // Format profile data
+    profileContent.innerHTML = `
+        <div class="profile-details">
+            <div class="profile-section">
+                <h4>Personal Information</h4>
+                <p><strong>Name:</strong> ${application.userName || 'N/A'}</p>
+                <p><strong>Email:</strong> ${application.userEmail || 'N/A'}</p>
+                <p><strong>Status:</strong> <span class="status-badge ${status}">${status.charAt(0).toUpperCase() + status.slice(1)}</span></p>
+            </div>
+            
+            <div class="profile-section">
+                <h4>Hackathon Details</h4>
+                <p><strong>Hackathon:</strong> ${application.hackathonTitle || 'N/A'}</p>
+                <p><strong>Applied On:</strong> ${application.appliedAt ? application.appliedAt.toLocaleString() : 'N/A'}</p>
+                ${application.approvedAt ? `<p><strong>Approved On:</strong> ${application.approvedAt.toLocaleString()}</p>` : ''}
+                ${application.rejectedAt ? `<p><strong>Rejected On:</strong> ${application.rejectedAt.toLocaleString()}</p>` : ''}
+            </div>
+            
+            ${application.skills ? `
+            <div class="profile-section">
+                <h4>Skills</h4>
+                <p>${application.skills}</p>
+            </div>
+            ` : ''}
+            
+            ${application.projectIdea ? `
+            <div class="profile-section">
+                <h4>Project Idea</h4>
+                <p>${application.projectIdea}</p>
+            </div>
+            ` : ''}
+            
+            ${application.experience ? `
+            <div class="profile-section">
+                <h4>Previous Experience</h4>
+                <p>${application.experience}</p>
+            </div>
+            ` : ''}
+        </div>
+        
+        <div class="profile-actions">
+            ${status === 'pending' ? `
+                <button class="btn primary" onclick="directApproveParticipant('${application.id}')">Approve</button>
+                <button class="btn secondary" onclick="showEmailModal('${application.id}', '${application.userEmail}', 'reject')">Reject</button>
+            ` : status === 'rejected' ? `
+                <button class="btn primary" onclick="directApproveParticipant('${application.id}')">Approve</button>
+            ` : `
+                <button class="btn primary" onclick="showEmailModal('${application.id}', '${application.userEmail}', 'message')">Send Message</button>
+            `}
+        </div>
+    `;
+    
+    // Show the modal
+    document.getElementById('profile-modal').style.display = 'block';
+}
+
+// Make the direct approve function available globally
+window.directApproveParticipant = directApproveParticipant;
+        // Filter applications based on search term
+        function filterApplications(term, status) {
+            if (!term) {
+                displayApplications(status, 1);
+                setupPagination(status);
+                return;
+            }
+            
+            const filtered = allApplications[status].filter(app => {
+                return (app.userName && app.userName.toLowerCase().includes(term)) ||
+                      (app.userEmail && app.userEmail.toLowerCase().includes(term)) ||
+                      (app.hackathonTitle && app.hackathonTitle.toLowerCase().includes(term));
+            });
+            
+            const tableBody = document.getElementById(`${status === 'approved' ? 'approved-participants' : status + '-applications'}`);
+            tableBody.innerHTML = '';
+            
+            if (filtered.length === 0) {
+                tableBody.innerHTML = `<tr><td colspan="6" class="text-center">No matching ${status} applications found</td></tr>`;
+                return;
+            }
+            
+            filtered.forEach(app => {
+                const row = document.createElement('tr');
+                
+                // Format date
+                const dateField = status === 'pending' ? 'appliedAt' : 
+                                 status === 'approved' ? 'approvedAt' : 'rejectedAt';
+                const dateDisplay = app[dateField] ? app[dateField].toLocaleDateString() : app.appliedAt.toLocaleDateString();
+                
+                row.innerHTML = `
+                    <td>${app.userName || 'N/A'}</td>
+                    <td>${app.userEmail || 'N/A'}</td>
+                    <td>${app.hackathonTitle || 'N/A'}</td>
+                    <td>${dateDisplay}</td>
+                    <td><button class="btn-view" data-id="${app.id}">View Profile</button></td>
+                    <td>
+                        ${status === 'pending' ? `
+                            <button class="btn-approve" data-id="${app.id}" data-email="${app.userEmail}">Approve</button>
+                            <button class="btn-reject" data-id="${app.id}" data-email="${app.userEmail}">Reject</button>
+                        ` : status === 'rejected' ? `
+                            <button class="btn-approve" data-id="${app.id}" data-email="${app.userEmail}">Approve</button>
+                        ` : `
+                            <button class="btn-message" data-id="${app.id}" data-email="${app.userEmail}">Message</button>
+                        `}
+                    </td>
+                `;
+                
+                tableBody.appendChild(row);
+            });
+            
+            // Add event listeners to buttons
+            addButtonEventListeners(status);
+        }
+        
+        // Make showEmailModal available globally
+        window.showEmailModal = showEmailModal;
+    </script>
+</body>
+</html>

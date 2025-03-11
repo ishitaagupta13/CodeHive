@@ -1,0 +1,112 @@
+/* General Styles */
+body {
+    font-family: 'Arial', sans-serif;
+    background: linear-gradient(135deg, #0a0a23, #1c1c3b);
+    color: #ffffff;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+.container {
+    width: 90%;
+    max-width: 800px;
+    background: rgba(20, 20, 50, 0.9);
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+}
+
+header {
+    text-align: center;
+    padding-bottom: 20px;
+    border-bottom: 2px solid #555;
+}
+
+h1, h2 {
+    color: #00aaff;
+}
+
+/* Skills Section */
+.skills-section, .recommendations-section {
+    margin-top: 20px;
+}
+
+.skills-input {
+    display: flex;
+    gap: 10px;
+}
+
+input[type="text"] {
+    flex: 1;
+    padding: 10px;
+    border: 1px solid #00aaff;
+    border-radius: 5px;
+    background: #1a1a3d;
+    color: #ffffff;
+}
+
+button {
+    background: #0055aa;
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+button:hover {
+    background: #0088ff;
+}
+
+/* Skill Tags */
+.skills-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.skill-tag {
+    background: #003366;
+    padding: 5px 10px;
+    border-radius: 5px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.remove-skill {
+    color: red;
+    cursor: pointer;
+}
+
+/* Hackathon Cards */
+.hackathon-cards {
+    display: grid;
+    gap: 15px;
+    margin-top: 20px;
+}
+
+.hackathon-card {
+    background: rgba(0, 0, 3, 0.8);
+    padding: 15px;
+    border-radius: 10px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+}
+
+.hackathon-card h3 {
+    color: #00aaff;
+}
+
+.apply-btn {
+    background: #0077cc;
+}
+
+.apply-btn:hover {
+    background: #0099ff;
+}
